@@ -28,16 +28,16 @@ const play = (id: string) =>
 const raw: Omit<AndroidApp, "playUrl">[] = [
   {
     id: "timeaware",
-    name: "TimeAware",
-    desc: "経過時間をホーム画面でそっと知らせる、シンプルな時間ウィジェット。",
+    name: "TimeAware – Dumbphone Launcher",
+    desc: "スマホを“ダムフォン”のように最小化し、スクリーンタイムも確認できるシンプルなホームランチャー。",
     status: "live",
     packageId: "com.arigatouapps.zenlauncher",
-    category: "ウィジェット",
+    category: "ランチャー",
     emoji: "🧘",
     featured: true,
     features: [
-      "ホーム画面ウィジェットで残り時間をひと目で確認。",
-      "通知でそっとリマインド、邪魔をしない設計。",
+      "アプリを絞ったミニマルなホーム画面。ダムフォン（ガラケー）のような割り切り。",
+      "スクリーンタイム（使用時間）をホーム画面でひと目で確認。",
       "オフラインで完結。アカウント登録は不要。",
     ],
   },

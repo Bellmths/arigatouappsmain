@@ -15,10 +15,15 @@ const { app } = Astro.props;
         {app.features.map((f) => <li>{f}</li>)}
       </ul>
     )}
-    <a class="btn btn--solid" href={app.playUrl} target="_blank" rel="noopener">
-      Google Play で入手 →
+    <a class="feat__badge" href={app.playUrl} target="_blank" rel="noopener"
+      aria-label={`${app.name} を Google Play で入手`}>
+      <img
+        src="https://play.google.com/intl/ja/badges/static/images/badges/ja_badge_web_generic.png"
+        alt="Google Play で手に入れよう"
+        height="56"
+        loading="lazy"
+      />
     </a>
-    <p class="eyebrow feat__note">※ 公式バッジに差し替え予定（プレースホルダ）</p>
   </div>
   <div class="feat__art" aria-hidden="true">
     <span>{app.emoji ?? "📱"}</span>
@@ -56,7 +61,14 @@ const { app } = Astro.props;
     font-family: var(--font-mono);
     color: var(--soft);
   }
-  .feat__note { margin-top: 12px; }
+  .feat__badge {
+    display: inline-block;
+    /* 公式バッジは透明の余白を含むため、左の視覚位置を合わせる */
+    margin-left: -10px;
+    transition: transform 0.12s;
+  }
+  .feat__badge:hover { transform: translateY(-2px); }
+  .feat__badge img { height: 56px; width: auto; }
   .feat__art {
     border-left: var(--border);
     background: var(--c-cyan);

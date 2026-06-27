@@ -20,7 +20,7 @@ export const services: Service[] = [
     id: "kabu",
     name: "株式ツール",
     desc: "ファンダメンタルズ × 株価を1画面で見るビューア。",
-    url: "https://kabu.arigatouapps.com",
+    url: "https://stocks.arigatouapps.com",
     status: "live",
     cta: "外部リンク",
     accent: "mint",
