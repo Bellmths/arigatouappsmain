@@ -1,0 +1,71 @@
+---
+import type { AndroidAppWithUrl } from "../data/apps";
+interface Props {
+  app: AndroidAppWithUrl;
+}
+const { app } = Astro.props;
+---
+<div class="feat">
+  <div class="feat__body">
+    <span class="eyebrow">★ featured · android</span>
+    <h3 class="feat__name display">{app.name}</h3>
+    <p class="feat__desc">{app.desc}</p>
+    {app.features && (
+      <ul class="feat__list">
+        {app.features.map((f) => <li>{f}</li>)}
+      </ul>
+    )}
+    <a class="btn btn--solid" href={app.playUrl} target="_blank" rel="noopener">
+      Google Play で入手 →
+    </a>
+    <p class="eyebrow feat__note">※ 公式バッジに差し替え予定（プレースホルダ）</p>
+  </div>
+  <div class="feat__art" aria-hidden="true">
+    <span>{app.emoji ?? "📱"}</span>
+  </div>
+</div>
+
+<style>
+  .feat {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 0;
+    background: var(--card);
+    border: var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .feat__body { padding: clamp(24px, 4vw, 40px); }
+  .feat__name { font-size: clamp(34px, 5vw, 52px); margin: 10px 0 12px; }
+  .feat__desc { color: var(--soft); max-width: 46ch; }
+  .feat__list {
+    list-style: none;
+    margin: 18px 0 24px;
+    display: grid;
+    gap: 10px;
+  }
+  .feat__list li {
+    position: relative;
+    padding-left: 26px;
+    font-size: 0.92rem;
+  }
+  .feat__list li::before {
+    content: "→";
+    position: absolute;
+    left: 0;
+    font-family: var(--font-mono);
+    color: var(--soft);
+  }
+  .feat__note { margin-top: 12px; }
+  .feat__art {
+    border-left: var(--border);
+    background: var(--c-cyan);
+    display: grid;
+    place-items: center;
+    font-size: clamp(60px, 12vw, 120px);
+  }
+  @media (max-width: 720px) {
+    .feat { grid-template-columns: 1fr; }
+    .feat__art { border-left: none; border-top: var(--border); min-height: 160px; }
+  }
+</style>

@@ -1,0 +1,122 @@
+---
+import "../styles/global.css";
+import { site } from "../data/site";
+
+interface Props {
+  title?: string;
+  description?: string;
+  /** schema.org JSON-LD オブジェクトの配列 */
+  jsonLd?: unknown[];
+}
+const { title, description = site.description, jsonLd = [] } = Astro.props;
+const pageTitle = title ? `${title} | ${site.name}` : site.name;
+---
+
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <title>{pageTitle}</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=IBM+Plex+Mono:wght@400;500&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+
+    {jsonLd.map((obj) => (
+      <script type="application/ld+json" set:html={JSON.stringify(obj)} />
+    ))}
+  </head>
+  <body>
+    <header class="nav">
+      <div class="wrap nav__inner">
+        <a href="/#top" class="nav__brand">{site.name}</a>
+        <nav class="nav__links">
+          <a href="/#projects">projects</a>
+          <a href="/#apps">apps</a>
+          <a href="/#faq">faq</a>
+          <a href="/#about">about</a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <slot />
+    </main>
+
+    <footer class="foot">
+      <div class="wrap foot__inner">
+        <div>
+          <p class="foot__brand display">{site.name}</p>
+          <p class="eyebrow">{site.tagline}</p>
+        </div>
+        <div class="foot__links eyebrow">
+          {site.email && <a href={`mailto:${site.email}`}>{site.email}</a>}
+          {site.links.blog && <a href={site.links.blog}>blog</a>}
+        </div>
+        <p class="foot__copy eyebrow">© {new Date().getFullYear()} {site.name}</p>
+      </div>
+    </footer>
+
+    <style>
+      .nav {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        background: color-mix(in srgb, var(--paper) 86%, transparent);
+        backdrop-filter: blur(8px);
+        border-bottom: var(--border);
+      }
+      .nav__inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding-top: 14px;
+        padding-bottom: 14px;
+      }
+      .nav__brand {
+        font-family: var(--font-display);
+        font-size: 1.4rem;
+        letter-spacing: -0.01em;
+      }
+      .nav__links {
+        display: flex;
+        gap: 18px;
+        font-family: var(--font-mono);
+        font-size: 0.8rem;
+        letter-spacing: 0.06em;
+      }
+      .nav__links a { color: var(--soft); }
+      .nav__links a:hover { color: var(--ink); }
+
+      .foot {
+        margin-top: 40px;
+        background: var(--card);
+        border-top: var(--border);
+      }
+      .foot__inner {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 20px;
+        padding-top: 40px;
+        padding-bottom: 40px;
+      }
+      .foot__brand { font-size: 2rem; margin-bottom: 4px; }
+      .foot__links { display: flex; gap: 16px; flex-wrap: wrap; }
+      .foot__links a:hover { color: var(--ink); }
+      .foot__copy { width: 100%; }
+      @media (max-width: 560px) {
+        .nav__links { gap: 12px; font-size: 0.72rem; }
+      }
+    </style>
+  </body>
+</html>

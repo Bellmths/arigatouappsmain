@@ -1,0 +1,127 @@
+/* =========================================================
+   ArigatouApps テーマ — 暖色エディトリアル / リソグラフ風。
+   モックアップ(ArigatouApps.html)準拠。色はここで一括変更。
+   ========================================================= */
+:root {
+  --paper: #e9e3d3; /* ページ背景 */
+  --card: #f8f4ea;  /* カード背景 */
+  --ink: #1c1b17;   /* 文字・枠線 */
+  --soft: #736d60;  /* 補助テキスト */
+
+  /* パステルのアクセントチップ */
+  --c-pink: #f3c2cf;
+  --c-mint: #bfe6d4;
+  --c-green: #c4e6bd;
+  --c-lime: #cfe85f;
+  --c-blue: #bcd2ef;
+  --c-cyan: #b9e0e8;
+  --c-purple: #d6c9ef;
+  --c-yellow: #efe0a0;
+
+  --maxw: 1080px;
+  --radius: 18px;
+  --border: 2px solid var(--ink);
+
+  --font-display: "DM Serif Display", Georgia, serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+  --font-jp: "Zen Kaku Gothic New", system-ui, sans-serif;
+  --font-body: var(--font-jp);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  line-height: 1.8;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: inherit; text-decoration: none; }
+img { max-width: 100%; display: block; }
+
+.wrap {
+  width: 100%;
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* 大見出し（セリフ） */
+.display {
+  font-family: var(--font-display);
+  font-weight: 400;
+  line-height: 0.98;
+  letter-spacing: -0.01em;
+}
+
+/* モノラベル（projects / ● Live など） */
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--soft);
+}
+
+/* セクション */
+.section { padding: clamp(40px, 7vw, 80px) 0; }
+.section__head { margin-bottom: clamp(20px, 3vw, 36px); }
+.section__title {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(30px, 5vw, 48px);
+  line-height: 1.0;
+  margin: 10px 0 0;
+}
+.section__lead { color: var(--soft); margin: 10px 0 0; max-width: 640px; }
+
+/* グリッド */
+.grid {
+  display: grid;
+  gap: 18px;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+}
+
+/* モノのステータスタグ */
+.tag {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  color: var(--ink);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  white-space: nowrap;
+}
+.tag::before {
+  content: "●";
+  font-size: 0.6em;
+}
+.tag--live::before { color: #2f9e5e; }
+.tag--wip::before { color: #c9912a; }
+.tag--coming::before { color: var(--soft); }
+
+/* ボタン */
+.btn {
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  letter-spacing: 0.04em;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  padding: 0.7em 1.2em;
+  border: var(--border);
+  border-radius: 999px;
+  background: var(--card);
+  transition: transform 0.12s, box-shadow 0.12s, background 0.12s;
+}
+.btn:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 4px 4px 0 var(--ink);
+}
+.btn--solid { background: var(--ink); color: var(--paper); }
+.btn--solid:hover { box-shadow: 4px 4px 0 var(--soft); }

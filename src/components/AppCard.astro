@@ -1,0 +1,72 @@
+---
+import Badge from "./Badge.astro";
+import type { AndroidAppWithUrl } from "../data/apps";
+interface Props {
+  app: AndroidAppWithUrl;
+  accent?: string;
+}
+const { app, accent = "mint" } = Astro.props;
+const isLink = app.status === "live" && app.playUrl;
+---
+<a
+  class="app"
+  href={isLink ? app.playUrl : "#"}
+  {...isLink ? { target: "_blank", rel: "noopener" } : {}}
+  style={`--accent:var(--c-${accent})`}
+>
+  <div class="app__head">
+    <span class="app__icon">
+      {app.icon ? <img src={app.icon} alt={app.name} /> : <span>{app.emoji ?? "📱"}</span>}
+    </span>
+    <Badge status={app.status} />
+  </div>
+  <h3 class="app__name">{app.name}</h3>
+  <p class="app__desc">{app.desc}</p>
+  <div class="app__foot">
+    <span class="eyebrow">{app.category}</span>
+    {isLink && <span class="app__get">Google Play →</span>}
+  </div>
+</a>
+
+<style>
+  .app {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 18px;
+    background: var(--card);
+    border: var(--border);
+    border-radius: var(--radius);
+    transition: transform 0.12s, box-shadow 0.12s;
+  }
+  .app:hover {
+    transform: translate(-3px, -3px);
+    box-shadow: 6px 6px 0 var(--ink);
+  }
+  .app__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .app__icon {
+    width: 46px;
+    height: 46px;
+    border-radius: 12px;
+    border: var(--border);
+    background: var(--accent);
+    display: grid;
+    place-items: center;
+    font-size: 1.4rem;
+    overflow: hidden;
+  }
+  .app__icon img { width: 100%; height: 100%; object-fit: cover; }
+  .app__name { font-size: 1.05rem; font-weight: 700; letter-spacing: -0.01em; margin-top: 2px; }
+  .app__desc { color: var(--soft); font-size: 0.85rem; flex: 1; }
+  .app__foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 4px;
+  }
+  .app__get { font-family: var(--font-mono); font-size: 0.72rem; }
+</style>

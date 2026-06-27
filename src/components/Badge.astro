@@ -1,0 +1,8 @@
+---
+interface Props {
+  status: "live" | "wip" | "coming";
+}
+const { status } = Astro.props;
+const labels = { live: "Live", wip: "WIP", coming: "Soon" };
+---
+<span class={`tag tag--${status}`}>{labels[status]}</span>

@@ -1,0 +1,58 @@
+---
+import Badge from "./Badge.astro";
+import type { Service } from "../data/services";
+interface Props {
+  service: Service;
+}
+const { service } = Astro.props;
+const isLink = service.status === "live" && service.url;
+const accent = `var(--c-${service.accent ?? "mint"})`;
+---
+<a
+  class="proj"
+  href={isLink ? service.url : "#apps"}
+  {...isLink ? { target: "_blank", rel: "noopener" } : {}}
+  style={`--accent:${accent}`}
+>
+  <span class="proj__swatch"></span>
+  <div class="proj__top">
+    <span class="eyebrow">project</span>
+    <Badge status={service.status} />
+  </div>
+  <h3 class="proj__title">{service.name}</h3>
+  <p class="proj__desc">{service.desc}</p>
+  <span class="proj__cta">{service.cta ?? "見る"} →</span>
+</a>
+
+<style>
+  .proj {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 22px;
+    background: var(--card);
+    border: var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    transition: transform 0.12s, box-shadow 0.12s;
+  }
+  .proj:hover {
+    transform: translate(-3px, -3px);
+    box-shadow: 6px 6px 0 var(--ink);
+  }
+  .proj__swatch {
+    height: 64px;
+    margin: -22px -22px 6px;
+    background: var(--accent);
+    border-bottom: var(--border);
+  }
+  .proj__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .proj__title { font-size: 21px; font-weight: 700; letter-spacing: -0.01em; margin: 2px 0 0; }
+  .proj__desc { color: var(--soft); font-size: 0.92rem; flex: 1; }
+  .proj__cta { font-family: var(--font-mono); font-size: 0.8rem; color: var(--ink); margin-top: 4px; }
+</style>
