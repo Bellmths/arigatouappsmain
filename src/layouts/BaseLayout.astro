@@ -58,7 +58,6 @@ const pageTitle = title ? `${title} | ${site.name}` : site.name;
         </div>
         <div class="foot__links eyebrow">
           {site.email && <a href={`mailto:${site.email}`}>{site.email}</a>}
-          {site.links.blog && <a href={site.links.blog}>blog</a>}
         </div>
         <p class="foot__copy eyebrow">© {new Date().getFullYear()} {site.name}</p>
       </div>
