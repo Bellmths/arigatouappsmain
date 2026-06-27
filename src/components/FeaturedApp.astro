@@ -26,7 +26,7 @@ const { app } = Astro.props;
     </a>
   </div>
   <div class="feat__art" aria-hidden="true">
-    <span>{app.emoji ?? "📱"}</span>
+    {app.icon ? <img class="feat__icon" src={app.icon} alt="" /> : <span>{app.emoji ?? "📱"}</span>}
   </div>
 </div>
 
@@ -75,6 +75,13 @@ const { app } = Astro.props;
     display: grid;
     place-items: center;
     font-size: clamp(60px, 12vw, 120px);
+    padding: 24px;
+  }
+  .feat__icon {
+    width: clamp(96px, 18vw, 168px);
+    height: auto;
+    border-radius: 24px;
+    border: var(--border);
   }
   @media (max-width: 720px) {
     .feat { grid-template-columns: 1fr; }

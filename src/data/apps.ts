@@ -166,6 +166,9 @@ export interface AndroidAppWithUrl extends AndroidApp {
 
 export const apps: AndroidAppWithUrl[] = raw.map((a) => ({
   ...a,
+  // public/apps/<id>.png（Playストアから取得した512pxアイコン）を自動参照。
+  // 差し替えたい場合は raw 側で icon を明示するか、ファイルを置き換える。
+  icon: a.icon ?? `/apps/${a.id}.png`,
   playUrl: play(a.packageId),
 }));
 
