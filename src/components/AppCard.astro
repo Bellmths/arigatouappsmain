@@ -1,17 +1,22 @@
 ---
 import Badge from "./Badge.astro";
 import type { AndroidAppWithUrl } from "../data/apps";
+import type { Lang } from "../i18n";
+import { t, langBase } from "../i18n";
+import { useT } from "../i18n/ui";
 interface Props {
   app: AndroidAppWithUrl;
   accent?: string;
+  lang: Lang;
 }
-const { app, accent = "mint" } = Astro.props;
-const isLink = app.status === "live" && app.playUrl;
+const { app, accent = "mint", lang } = Astro.props;
+const T = useT(lang);
+// カードは個別LP（/apps/<id> または /en/apps/<id>）へ遷移する。
+const href = `${langBase(lang)}apps/${app.id}`;
 ---
 <a
   class="app"
-  href={isLink ? app.playUrl : "#"}
-  {...isLink ? { target: "_blank", rel: "noopener" } : {}}
+  href={href}
   style={`--accent:var(--c-${accent})`}
 >
   <div class="app__head">
@@ -21,10 +26,10 @@ const isLink = app.status === "live" && app.playUrl;
     <Badge status={app.status} />
   </div>
   <h3 class="app__name">{app.name}</h3>
-  <p class="app__desc">{app.desc}</p>
+  <p class="app__desc">{t(app.desc, lang)}</p>
   <div class="app__foot">
-    <span class="eyebrow">{app.category}</span>
-    {isLink && <span class="app__get">Google Play →</span>}
+    <span class="eyebrow">{t(app.category, lang)}</span>
+    <span class="app__get">{T("card.details")} →</span>
   </div>
 </a>
 

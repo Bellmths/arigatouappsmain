@@ -1,25 +1,70 @@
 ---
 import "../styles/global.css";
 import { site } from "../data/site";
+import { t, langBase, LANGS, DEFAULT_LANG } from "../i18n";
+import type { Lang } from "../i18n";
+import { useT } from "../i18n/ui";
 
 interface Props {
+  lang: Lang;
   title?: string;
   description?: string;
+  /** 言語ベース以下のパス（例: "apps/timeaware"）。トップは "" */
+  path?: string;
   /** schema.org JSON-LD オブジェクトの配列 */
   jsonLd?: unknown[];
 }
-const { title, description = site.description, jsonLd = [] } = Astro.props;
+const { lang, title, description, path = "", jsonLd = [] } = Astro.props;
+const T = useT(lang);
+
 const pageTitle = title ? `${title} | ${site.name}` : site.name;
+const metaDesc = description ?? t(site.description, lang);
+
+// 言語別パス
+const base = langBase(lang); // "/" or "/en/"
+const canonical = `${site.url}${base}${path}`;
+// 反対言語（切替ボタン用）— 同じページの別言語版へ
+const other = LANGS.find((l) => l !== lang) ?? DEFAULT_LANG;
+const otherHref = `${langBase(other)}${path}`;
+// hreflang 相互リンク（x-default はデフォルト言語）
+const alternates = LANGS.map((l) => ({ lang: l, href: `${site.url}${langBase(l)}${path}` }));
 ---
 
 <!doctype html>
-<html lang="ja">
+<html lang={lang}>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content={description} />
+
+    <!-- 初回のみブラウザ言語で言語ページへ自動誘導。手動切替の選択(localStorage)は尊重する。 -->
+    <script is:inline>
+      (function () {
+        try {
+          if (localStorage.getItem("lang")) return; // 明示的な選択があれば何もしない
+          var path = location.pathname;
+          var onEn = path === "/en" || path.indexOf("/en/") === 0;
+          var isRoot = path === "/" || path === "/index.html";
+          if (!onEn && isRoot) {
+            var pref = (navigator.language || navigator.userLanguage || "").toLowerCase();
+            // 日本語以外のブラウザは英語ページへ
+            if (pref && pref.indexOf("ja") !== 0) {
+              location.replace("/en/");
+            }
+          }
+        } catch (e) {}
+      })();
+    </script>
+
+    <meta name="description" content={metaDesc} />
     <title>{pageTitle}</title>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="canonical" href={canonical} />
+
+    <!-- 多言語の相互リンク（SEO: 各言語版を検索エンジンに知らせる） -->
+    {alternates.map((a) => (
+      <link rel="alternate" hreflang={a.lang} href={a.href} />
+    ))}
+    <link rel="alternate" hreflang="x-default" href={`${site.url}${langBase(DEFAULT_LANG)}${path}`} />
 
     <!-- Google AdSense -->
     <script
@@ -43,12 +88,19 @@ const pageTitle = title ? `${title} | ${site.name}` : site.name;
   <body>
     <header class="nav">
       <div class="wrap nav__inner">
-        <a href="/#top" class="nav__brand">{site.name}</a>
+        <a href={`${base}#top`} class="nav__brand">{site.name}</a>
         <nav class="nav__links">
-          <a href="/#projects">projects</a>
-          <a href="/#apps">apps</a>
-          <a href="/#faq">faq</a>
-          <a href="/#about">about</a>
+          <a href={`${base}#projects`}>{T("nav.projects")}</a>
+          <a href={`${base}#apps`}>{T("nav.apps")}</a>
+          <a href={`${base}#faq`}>{T("nav.faq")}</a>
+          <a href={`${base}#about`}>{T("nav.about")}</a>
+          <a
+            href={otherHref}
+            class="nav__lang"
+            data-set-lang={other}
+            hreflang={other}
+            aria-label={`Switch language to ${other.toUpperCase()}`}
+          >{T("lang.switch")}</a>
         </nav>
       </div>
     </header>
@@ -61,7 +113,7 @@ const pageTitle = title ? `${title} | ${site.name}` : site.name;
       <div class="wrap foot__inner">
         <div>
           <p class="foot__brand display">{site.name}</p>
-          <p class="eyebrow">{site.tagline}</p>
+          <p class="eyebrow">{t(site.tagline, lang)}</p>
         </div>
         <div class="foot__links eyebrow">
           {site.email && <a href={`mailto:${site.email}`}>{site.email}</a>}
@@ -69,6 +121,17 @@ const pageTitle = title ? `${title} | ${site.name}` : site.name;
         <p class="foot__copy eyebrow">© {new Date().getFullYear()} {site.name}</p>
       </div>
     </footer>
+
+    <!-- 言語切替を押したら選択を記憶し、以後は自動リダイレクトしない -->
+    <script is:inline>
+      document.querySelectorAll("[data-set-lang]").forEach(function (el) {
+        el.addEventListener("click", function () {
+          try {
+            localStorage.setItem("lang", el.getAttribute("data-set-lang"));
+          } catch (e) {}
+        });
+      });
+    </script>
 
     <style>
       .nav {
@@ -94,6 +157,7 @@ const pageTitle = title ? `${title} | ${site.name}` : site.name;
       }
       .nav__links {
         display: flex;
+        align-items: center;
         gap: 18px;
         font-family: var(--font-mono);
         font-size: 0.8rem;
@@ -101,6 +165,14 @@ const pageTitle = title ? `${title} | ${site.name}` : site.name;
       }
       .nav__links a { color: var(--soft); }
       .nav__links a:hover { color: var(--ink); }
+      .nav__lang {
+        border: var(--border);
+        border-radius: 999px;
+        padding: 3px 12px;
+        color: var(--ink) !important;
+        letter-spacing: 0.04em;
+      }
+      .nav__lang:hover { background: var(--card); }
 
       .foot {
         margin-top: 40px;

@@ -1,0 +1,171 @@
+---
+// アプリ個別LP本体。/apps/<id> と /en/apps/<id> の両ページから lang を渡して共有する。
+import Badge from "./Badge.astro";
+import AppCard from "./AppCard.astro";
+import { apps, developerUrl } from "../data/apps";
+import type { AndroidAppWithUrl } from "../data/apps";
+import { t, tList, langBase } from "../i18n";
+import type { Lang } from "../i18n";
+import { useT } from "../i18n/ui";
+
+interface Props {
+  app: AndroidAppWithUrl;
+  lang: Lang;
+}
+const { app, lang } = Astro.props;
+const T = useT(lang);
+const base = langBase(lang);
+
+const features = app.features ? tList(app.features, lang) : [];
+const accent = `var(--c-${app.accent ?? "mint"})`;
+const isLive = app.status === "live";
+
+// Google Play 公式バッジ（言語別）
+const badgeLocale = lang === "ja" ? "ja" : "en";
+const badgeSrc = `https://play.google.com/intl/${badgeLocale}/badges/static/images/badges/${badgeLocale}_badge_web_generic.png`;
+
+// 関連アプリ（同じものを除いて先頭から4件）
+const related = apps.filter((a) => a.id !== app.id).slice(0, 4);
+const accents = ["pink", "mint", "green", "blue", "cyan", "purple", "yellow", "lime"];
+---
+<article>
+  <!-- パンくず -->
+  <nav class="wrap crumb" aria-label="breadcrumb">
+    <a href={base}>{T("app.home")}</a>
+    <span aria-hidden="true">/</span>
+    <a href={`${base}#apps`}>{T("app.apps")}</a>
+    <span aria-hidden="true">/</span>
+    <span class="crumb__cur">{app.name}</span>
+  </nav>
+
+  <!-- ヒーロー -->
+  <section class="ap-hero">
+    <div class="wrap ap-hero__grid">
+      <div class="ap-hero__copy">
+        <span class="eyebrow">{t(app.category, lang)}</span>
+        <h1 class="ap-title display">{app.name}</h1>
+        <div class="ap-status"><Badge status={app.status} /></div>
+        <p class="ap-lead">{t(app.desc, lang)}</p>
+
+        <div class="ap-cta">
+          {isLive && (
+            <a class="ap-badge" href={app.playUrl} target="_blank" rel="noopener" aria-label={T("app.get")}>
+              <img src={badgeSrc} alt={T("app.get")} height="54" loading="lazy" />
+            </a>
+          )}
+        </div>
+
+        {app.demo && (
+          <p class="ap-demo">
+            <a class="btn btn--solid" href={app.demo} target="_blank" rel="noopener">{T("app.demo")} →</a>
+            <span class="eyebrow ap-demo__note">{T("app.demoNote")}</span>
+          </p>
+        )}
+      </div>
+
+      <div class="ap-hero__art" style={`--accent:${accent}`}>
+        <div class="ap-frame">
+          <span class="ap-frame__swatch"></span>
+          <span class="ap-frame__icon">
+            {app.icon ? <img src={app.icon} alt={app.name} width="140" height="140" /> : <span class="ap-emoji">{app.emoji ?? "📱"}</span>}
+          </span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 特徴 -->
+  {features.length > 0 && (
+    <section class="section ap-features">
+      <div class="wrap">
+        <div class="section__head">
+          <span class="eyebrow">{T("app.features")}</span>
+          <h2 class="section__title">{T("app.featTitle")}</h2>
+        </div>
+        <ul class="ap-feats">
+          {features.map((f) => (
+            <li class="ap-feat"><span class="ap-feat__no display">→</span><p>{f}</p></li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  )}
+
+  <!-- 関連アプリ -->
+  <section class="section ap-related">
+    <div class="wrap">
+      <div class="section__head">
+        <span class="eyebrow">{T("app.related")}</span>
+      </div>
+      <div class="grid">
+        {related.map((a, i) => <AppCard app={a} accent={accents[i % accents.length]} lang={lang} />)}
+      </div>
+      <p class="ap-related__more">
+        <a class="btn" href={`${base}#apps`}>{T("app.allApps")} →</a>
+      </p>
+    </div>
+  </section>
+</article>
+
+<style>
+  .crumb {
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    padding-top: 24px;
+    font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.08em;
+    color: var(--soft);
+  }
+  .crumb a:hover { color: var(--ink); text-decoration: underline; }
+  .crumb__cur { color: var(--ink); }
+
+  .ap-hero { padding: clamp(28px, 5vw, 56px) 0 clamp(36px, 6vw, 72px); }
+  .ap-hero__grid {
+    display: grid; grid-template-columns: 1.25fr 0.75fr; gap: clamp(28px, 5vw, 64px);
+    align-items: center;
+  }
+  .ap-title { font-size: clamp(38px, 6vw, 68px); margin: 12px 0 0; }
+  .ap-status { margin-top: 16px; }
+  .ap-lead { color: var(--soft); font-size: 1.05rem; max-width: 46ch; margin-top: 14px; }
+  .ap-cta { margin-top: 28px; }
+  .ap-badge { display: inline-block; margin-left: -10px; transition: transform 0.12s; }
+  .ap-badge:hover { transform: translateY(-2px); }
+  .ap-badge img { height: 54px; width: auto; }
+  .ap-demo { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; margin-top: 18px; }
+  .ap-demo__note { text-transform: none; letter-spacing: 0.02em; }
+
+  /* アイコンフレーム（services カードと同じ質感） */
+  .ap-hero__art { display: flex; justify-content: center; }
+  .ap-frame {
+    position: relative; width: 100%; max-width: 300px;
+    background: var(--card); border: var(--border); border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: 8px 8px 0 var(--ink);
+  }
+  .ap-frame__swatch { display: block; height: 84px; background: var(--accent); border-bottom: var(--border); }
+  .ap-frame__icon {
+    display: grid; place-items: center; padding: 28px;
+    margin-top: -52px;
+  }
+  .ap-frame__icon img {
+    width: 140px; height: 140px; border-radius: 30px; border: var(--border);
+    background: var(--paper);
+  }
+  .ap-emoji { font-size: 96px; line-height: 1.4; }
+
+  .ap-features { background: var(--card); border-top: var(--border); border-bottom: var(--border); }
+  .ap-feats { list-style: none; display: grid; gap: 14px; max-width: 760px; }
+  .ap-feat {
+    display: flex; gap: 18px; align-items: flex-start;
+    background: var(--paper); border: var(--border); border-radius: var(--radius);
+    padding: 20px 22px;
+  }
+  .ap-feat__no { font-size: 1.6rem; line-height: 1; color: var(--soft); flex: none; }
+  .ap-feat p { line-height: 1.7; }
+
+  .ap-related__more { text-align: right; margin-top: 22px; }
+
+  @media (max-width: 760px) {
+    .ap-hero__grid { grid-template-columns: 1fr; }
+    .ap-hero__art { order: -1; justify-content: flex-start; }
+    .ap-lead { max-width: none; }
+  }
+</style>

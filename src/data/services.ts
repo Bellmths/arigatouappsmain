@@ -1,16 +1,16 @@
 // Webサービス（サブドメインで公開しているもの）。
 // 新しいサービスが増えたら、このリストに1ブロック足すだけでトップ・フッターに反映される。
+// 表示テキスト（name / desc）は Loc（{ja, en}）で持ち、言語に応じて出し分ける。
+import type { Loc } from "../i18n";
 
 export type ServiceStatus = "live" | "wip" | "coming";
 
 export interface Service {
   id: string;
-  name: string;
-  desc: string;
+  name: Loc;
+  desc: Loc;
   url: string;
   status: ServiceStatus;
-  /** ボタン文言（例: 外部リンク / 下の一覧へ） */
-  cta?: string;
   /** カードのアクセント色（CSS変数名 --c-xxx の xxx 部分） */
   accent?: string;
 }
@@ -18,20 +18,24 @@ export interface Service {
 export const services: Service[] = [
   {
     id: "kabu",
-    name: "株式ツール",
-    desc: "ファンダメンタルズ × 株価を1画面で見るビューア。",
+    name: { ja: "株式ツール", en: "Stock Viewer" },
+    desc: {
+      ja: "ファンダメンタルズ × 株価を1画面で見るビューア。",
+      en: "View fundamentals and stock prices together on a single screen.",
+    },
     url: "https://stocks.arigatouapps.com",
     status: "live",
-    cta: "外部リンク",
     accent: "mint",
   },
   {
     id: "vizfy-web",
-    name: "Vizfy",
-    desc: "Last.fm の聴取データをツリーマップで可視化。Android 版もあります。",
+    name: { ja: "Vizfy", en: "Vizfy" },
+    desc: {
+      ja: "Last.fm の聴取データをツリーマップで可視化。Android 版もあります。",
+      en: "Visualize your Last.fm listening data as a treemap. An Android version is also available.",
+    },
     url: "https://vizfy.arigatouapps.com",
     status: "live",
-    cta: "外部リンク",
     accent: "pink",
   },
 ];

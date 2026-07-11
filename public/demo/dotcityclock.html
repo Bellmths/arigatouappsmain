@@ -1,0 +1,384 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>DotCityClock — Pixel Clock</title>
+<style>
+  :root {
+    --sky-top: #0B0D2A;
+    --sky-mid: #241653;
+    --sky-low: #6B2E63;
+    --horizon: #E8794B;
+    --bg: #0B0D2A;
+    --panel: #12153a;
+    --line: #2A2E63;
+    --ink: #EDEAFF;
+    --ink-2: #A9A6D8;
+    --ink-soft: #6E6BA6;
+    --amber: #FFC24B;
+    --cyan: #46E5D0;
+    --magenta: #FF6BA8;
+    --mono: ui-monospace, "SF Mono", "JetBrains Mono", "Consolas", "Menlo", monospace;
+    --font: var(--mono);
+  }
+  :root[data-theme="light"] {
+    --sky-top:#EAD9F2; --sky-mid:#F3D2C6; --sky-low:#FBE3B0; --horizon:#FF9A4D;
+    --bg:#F4EFF7; --panel:#FFFFFF; --line:#E4D8EC;
+    --ink:#241640; --ink-2:#6A5A82; --ink-soft:#9A8AB0;
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; background: var(--bg); color: var(--ink); font-family: var(--font);
+    line-height: 1.6; overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+  h1,h2,h3,p { margin:0; }
+  a { color: inherit; text-decoration: none; }
+  img, canvas { image-rendering: pixelated; }
+  .wrap { width:100%; max-width: 1080px; margin:0 auto; padding: 0 22px; }
+  .label { font-size: 0.68rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--ink-soft); }
+  .pixel-border { border: 3px solid var(--line); border-radius: 0;
+    box-shadow: 0 0 0 3px var(--bg), 6px 6px 0 0 rgba(0,0,0,0.35); }
+
+  /* nav */
+  .nav { position: sticky; top:0; z-index: 30; padding: 14px 0; background: color-mix(in srgb, var(--bg) 85%, transparent); backdrop-filter: blur(8px); border-bottom: 3px solid var(--line); }
+  .nav__in { display:flex; align-items:center; justify-content: space-between; gap: 14px; }
+  .brand { display:flex; align-items:center; gap:10px; font-weight:700; font-size:0.98rem; letter-spacing: 0.04em; }
+  .brand__px { display:grid; grid-template-columns: repeat(3,5px); grid-auto-rows: 5px; gap:1px; }
+  .brand__px i { background: var(--amber); }
+  .brand__px i.off { background: transparent; }
+  .nav__links { display:flex; align-items:center; gap: 4px; }
+  .nav__links a { font-size: 0.76rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-2); padding: 8px 10px; }
+  .nav__links a:hover { color: var(--amber); }
+
+  .btn { display:inline-flex; align-items:center; gap:8px; font-family: var(--mono); font-weight:700;
+    font-size: 0.78rem; letter-spacing: 0.06em; text-transform: uppercase; padding: 11px 18px; cursor:pointer;
+    border: 3px solid var(--amber); background: var(--amber); color: #241100; transition: transform .12s; }
+  .btn:hover { transform: translate(-2px,-2px); box-shadow: 4px 4px 0 rgba(0,0,0,0.35); }
+  .btn:active { transform: translate(0,0); box-shadow: none; }
+  .btn--ghost { background: transparent; border-color: var(--line); color: var(--ink); }
+  .btn--mini { padding: 8px 11px; font-size: 0.72rem; border-color: var(--line); background: transparent; color: var(--ink); }
+  .btn:focus-visible { outline: 3px solid var(--cyan); outline-offset: 3px; }
+
+  /* hero */
+  .hero { position: relative; overflow: hidden;
+    background: linear-gradient(180deg, var(--sky-top) 0%, var(--sky-mid) 52%, var(--sky-low) 78%, var(--horizon) 100%); }
+  :root[data-theme="light"] .hero { background: linear-gradient(180deg,#EAD9F2,#F3D2C6 60%,#FBE3B0 82%,#FF9A4D); }
+  .stars { position:absolute; inset:0; pointer-events:none; }
+  #city { position:absolute; left:0; right:0; bottom:0; width:100%; height: 200px; display:block; z-index:1; }
+  .hero__in { position: relative; z-index: 2; padding: clamp(46px, 7vw, 84px) 0 clamp(150px, 20vw, 230px); text-align:center; }
+  .hero .label { color: #FFD79A; }
+  :root[data-theme="light"] .hero .label { color:#8a4a12; }
+  .clock-wrap { display:flex; justify-content:center; margin: 22px 0 26px; }
+  #clock { width: min(560px, 88vw); height: auto; filter: drop-shadow(0 0 22px rgba(255,194,75,0.35)); }
+  .hero h1 { color:#fff; font-size: clamp(1.5rem, 4.2vw, 2.5rem); font-weight:700; letter-spacing: 0.02em; line-height:1.3; text-wrap: balance; margin: 0 auto 10px; max-width: 22ch; }
+  :root[data-theme="light"] .hero h1 { color:#2a163f; }
+  .hero p { color: #D8CFFF; max-width: 40ch; margin: 0 auto 26px; font-size: 0.92rem; }
+  :root[data-theme="light"] .hero p { color:#5a4a72; }
+  .hero__cta { display:flex; gap:12px; justify-content:center; flex-wrap: wrap; }
+
+  /* section */
+  .section { padding: clamp(52px, 8vw, 96px) 0; }
+  .sec-head { text-align:center; max-width: 44ch; margin: 0 auto 44px; }
+  .sec-head h2 { font-size: clamp(1.5rem, 3.4vw, 2.2rem); font-weight:700; letter-spacing: 0.02em; line-height:1.25; margin: 12px 0; text-wrap: balance; }
+  .sec-head p { color: var(--ink-2); font-size: 0.95rem; }
+
+  .grid3 { display:grid; grid-template-columns: repeat(auto-fit,minmax(240px,1fr)); gap: 18px; }
+  .feat { background: var(--panel); padding: 26px 22px; border: 3px solid var(--line); }
+  .feat__ic { width: 46px; height:46px; display:grid; place-items:center; margin-bottom: 16px; background: var(--bg); border: 3px solid var(--amber); color: var(--amber); }
+  .feat__ic svg { width: 22px; height:22px; }
+  .feat h3 { font-size: 0.98rem; font-weight:700; letter-spacing:0.04em; text-transform: uppercase; margin-bottom: 8px; }
+  .feat p { font-size: 0.9rem; color: var(--ink-2); font-family: system-ui, "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif; }
+
+  /* styles strip */
+  .styles { display:flex; gap: 14px; justify-content:center; flex-wrap: wrap; margin-top: 8px; }
+  .swatch { border:3px solid var(--line); background: var(--panel); padding: 18px 20px; text-align:center; min-width: 150px; }
+  .swatch canvas { display:block; margin: 0 auto 12px; }
+  .swatch span { font-size: 0.68rem; letter-spacing:0.14em; text-transform: uppercase; color: var(--ink-soft); }
+
+  /* final */
+  .final { text-align:center; padding: clamp(56px, 8vw, 100px) 0; border-top: 3px solid var(--line); }
+  .final h2 { font-size: clamp(1.8rem, 4.4vw, 2.8rem); font-weight:700; letter-spacing: 0.02em; line-height:1.2; margin-bottom: 16px; text-wrap: balance; }
+  .final p { color: var(--ink-2); max-width: 38ch; margin: 0 auto 28px; font-family: system-ui, "Hiragino Kaku Gothic ProN","Noto Sans JP", sans-serif; }
+  .final__cta { display:flex; gap:12px; justify-content:center; flex-wrap: wrap; }
+  .foot { border-top: 3px solid var(--line); padding: 22px 0; }
+  .foot__in { display:flex; justify-content: space-between; align-items:center; gap:12px; flex-wrap: wrap; }
+  .foot__in small { color: var(--ink-soft); font-size: 0.72rem; letter-spacing: 0.08em; }
+
+  .reveal { opacity:0; transform: translateY(16px); transition: opacity .6s steps(6), transform .6s steps(6); }
+  .reveal.in { opacity:1; transform:none; }
+  @media (prefers-reduced-motion: reduce){ .reveal{opacity:1;transform:none;transition:none;} }
+  @media (max-width: 780px){ .nav__links a:not(.btn){ display:none; } }
+</style>
+
+<nav class="nav">
+  <div class="wrap nav__in">
+    <div class="brand">
+      <span class="brand__px" aria-hidden="true">
+        <i></i><i class="off"></i><i></i><i></i><i></i><i></i><i></i><i class="off"></i><i></i>
+      </span>
+      DotCityClock
+    </div>
+    <div class="nav__links">
+      <a href="#features" data-i18n="nav.features">Features</a>
+      <a href="#styles" data-i18n="nav.styles">Styles</a>
+      <button class="btn btn--mini" id="langToggle" type="button" aria-label="Switch language">EN</button>
+      <button class="btn" type="button">Google Play</button>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <canvas class="stars" id="stars" width="800" height="380" aria-hidden="true"></canvas>
+  <div class="wrap hero__in">
+    <span class="label" data-i18n="hero.eyebrow">Pixel digital clock</span>
+    <div class="clock-wrap">
+      <canvas id="clock" width="560" height="150" role="img" aria-label="Pixel dot-matrix clock showing the current time"></canvas>
+    </div>
+    <h1 data-i18n="hero.h1">ホーム画面に、ドット絵の街時計を。</h1>
+    <p data-i18n="hero.lead">一粒ずつ灯るピクセルで時を刻む、レトロなデジタル時計。夕暮れの街が、あなたの待受に。</p>
+    <div class="hero__cta">
+      <button class="btn" type="button">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true"><path d="M3 3.5v17l14-8.5-14-8.5z"/></svg>
+        <span data-i18n="hero.play">Google Play で入手</span>
+      </button>
+      <button class="btn btn--ghost" type="button" data-i18n="hero.styles">スタイルを見る</button>
+    </div>
+  </div>
+  <canvas id="city" width="1200" height="200" aria-hidden="true"></canvas>
+</header>
+
+<section class="section" id="features">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="label">The clock</span>
+      <h2 data-i18n="feat.title">一粒の光が、時になる。</h2>
+      <p data-i18n="feat.desc">アンチエイリアスなし。すべては四角いドットの集まり。潔いピクセルだけで、時刻を描きます。</p>
+    </div>
+    <div class="grid3">
+      <div class="feat reveal">
+        <span class="feat__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span>
+        <h3 data-i18n="f1.t">Dot-matrix</h3>
+        <p data-i18n="f1.d">5×7のドットで組んだ数字が、1秒ごとに切り替わる。ドット絵そのままの時計です。</p>
+      </div>
+      <div class="feat reveal">
+        <span class="feat__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18"/><path d="M3 9h18M9 21V9"/></svg></span>
+        <h3 data-i18n="f2.t">Home widget</h3>
+        <p data-i18n="f2.d">ホーム画面ウィジェットとして常駐。夕暮れの街並みごと、待受に置けます。</p>
+      </div>
+      <div class="feat reveal">
+        <span class="feat__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M12 5v14"/></svg></span>
+        <h3 data-i18n="f3.t">Palettes</h3>
+        <p data-i18n="f3.d">琥珀・シアン・マゼンタ。レトロなCRTの色味を、気分で切り替え。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="styles" style="border-top:3px solid var(--line)">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="label">Palettes</span>
+      <h2 data-i18n="styles.title">色は、3つの気分で。</h2>
+    </div>
+    <div class="styles reveal">
+      <div class="swatch"><canvas class="mini" width="120" height="34" data-color="#FFC24B"></canvas><span>Amber</span></div>
+      <div class="swatch"><canvas class="mini" width="120" height="34" data-color="#46E5D0"></canvas><span>Cyan</span></div>
+      <div class="swatch"><canvas class="mini" width="120" height="34" data-color="#FF6BA8"></canvas><span>Magenta</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="final">
+  <div class="wrap">
+    <h2 data-i18n="final.title">今、何時？</h2>
+    <p data-i18n="final.desc">画面を見るたび、小さなドット絵の街がそこにある。</p>
+    <div class="final__cta">
+      <button class="btn" type="button"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true"><path d="M3 3.5v17l14-8.5-14-8.5z"/></svg><span data-i18n="hero.play">Google Play で入手</span></button>
+    </div>
+  </div>
+  <div class="wrap foot">
+    <div class="foot__in">
+      <div class="brand"><span class="brand__px" aria-hidden="true"><i></i><i class="off"></i><i></i><i></i><i></i><i></i><i></i><i class="off"></i><i></i></span>DotCityClock</div>
+      <small>© 2026 ArigatouApps</small>
+    </div>
+  </div>
+</section>
+
+<script>
+  var I18N = {
+    ja: {
+      "nav.features":"特徴","nav.styles":"スタイル",
+      "hero.eyebrow":"ピクセル・デジタル時計",
+      "hero.h1":"ホーム画面に、ドット絵の街時計を。",
+      "hero.lead":"一粒ずつ灯るピクセルで時を刻む、レトロなデジタル時計。夕暮れの街が、あなたの待受に。",
+      "hero.play":"Google Play で入手","hero.styles":"スタイルを見る",
+      "feat.title":"一粒の光が、時になる。",
+      "feat.desc":"アンチエイリアスなし。すべては四角いドットの集まり。潔いピクセルだけで、時刻を描きます。",
+      "f1.t":"ドットマトリクス","f1.d":"5×7のドットで組んだ数字が、1秒ごとに切り替わる。ドット絵そのままの時計です。",
+      "f2.t":"ホームウィジェット","f2.d":"ホーム画面ウィジェットとして常駐。夕暮れの街並みごと、待受に置けます。",
+      "f3.t":"パレット","f3.d":"琥珀・シアン・マゼンタ。レトロなCRTの色味を、気分で切り替え。",
+      "styles.title":"色は、3つの気分で。",
+      "final.title":"今、何時？",
+      "final.desc":"画面を見るたび、小さなドット絵の街がそこにある。",
+      "_lang":"EN"
+    },
+    en: {
+      "nav.features":"Features","nav.styles":"Styles",
+      "hero.eyebrow":"Pixel digital clock",
+      "hero.h1":"A pixel-art city clock, right on your home screen.",
+      "hero.lead":"A retro digital clock that tells the time one glowing pixel at a time. A city at dusk, living on your lock screen.",
+      "hero.play":"Get it on Google Play","hero.styles":"See the styles",
+      "feat.title":"One pixel of light becomes the time.",
+      "feat.desc":"No anti-aliasing. Everything is a cluster of square dots — the time drawn in nothing but honest pixels.",
+      "f1.t":"Dot-matrix","f1.d":"Digits built from a 5×7 dot grid, flipping over once every second. A clock that is pixel art itself.",
+      "f2.t":"Home widget","f2.d":"Lives on your home screen as a widget — the whole dusk skyline, placed on your wallpaper.",
+      "f3.t":"Palettes","f3.d":"Amber, cyan, magenta. Switch the retro CRT tones to match your mood.",
+      "styles.title":"Three moods of color.",
+      "final.title":"What time is it?",
+      "final.desc":"Every time you glance at your screen, a tiny pixel city is waiting there.",
+      "_lang":"日本語"
+    }
+  };
+  function applyLang(lang){
+    var d=I18N[lang]||I18N.ja; document.documentElement.lang=lang;
+    document.querySelectorAll("[data-i18n]").forEach(function(el){var k=el.getAttribute("data-i18n"); if(d[k]!=null) el.textContent=d[k];});
+    var tg=document.getElementById("langToggle"); if(tg) tg.textContent=d._lang;
+    try{localStorage.setItem("dc_lang",lang);}catch(e){}
+    window.__lang=lang;
+  }
+  (function(){
+    var s=null; try{s=localStorage.getItem("dc_lang");}catch(e){}
+    var n=(navigator.language||"").toLowerCase();
+    applyLang(s || (n.indexOf("ja")===0?"ja":"en"));
+    var tg=document.getElementById("langToggle");
+    if(tg) tg.addEventListener("click",function(){ applyLang(window.__lang==="ja"?"en":"ja"); });
+  })();
+
+  // reveal
+  (function(){
+    var els=document.querySelectorAll(".reveal");
+    if(!("IntersectionObserver" in window)){ els.forEach(function(e){e.classList.add("in");}); return; }
+    var io=new IntersectionObserver(function(en){ en.forEach(function(x){ if(x.isIntersecting){ x.target.classList.add("in"); io.unobserve(x.target);} }); },{threshold:0.14});
+    els.forEach(function(e){ io.observe(e); });
+  })();
+
+  // ===== 5x7 dot-matrix font =====
+  var FONT = {
+    "0":["01110","10001","10011","10101","11001","10001","01110"],
+    "1":["00100","01100","00100","00100","00100","00100","01110"],
+    "2":["01110","10001","00001","00010","00100","01000","11111"],
+    "3":["11111","00010","00100","00010","00001","10001","01110"],
+    "4":["00010","00110","01010","10010","11111","00010","00010"],
+    "5":["11111","10000","11110","00001","00001","10001","01110"],
+    "6":["00110","01000","10000","11110","10001","10001","01110"],
+    "7":["11111","00001","00010","00100","01000","01000","01000"],
+    "8":["01110","10001","10001","01110","10001","10001","01110"],
+    "9":["01110","10001","10001","01111","00001","00010","01100"],
+    ":":["00000","00100","00100","00000","00100","00100","00000"]
+  };
+  function drawMatrix(ctx, str, opt){
+    var dot=opt.dot, gap=opt.gap, color=opt.color, dim=opt.dim||"rgba(255,255,255,0.05)";
+    var cell=dot+gap, cw=5*cell+cell; // char width + spacing
+    var x0=opt.x||0, y0=opt.y||0;
+    for(var ci=0; ci<str.length; ci++){
+      var g=FONT[str[ci]]; if(!g) continue;
+      var cx = x0 + ci*cw;
+      for(var r=0;r<7;r++){ for(var c=0;c<5;c++){
+        var on = g[r][c]==="1";
+        ctx.fillStyle = on?color:dim;
+        ctx.fillRect(cx+c*cell, y0+r*cell, dot, dot);
+        if(on){ ctx.shadowColor=color; ctx.shadowBlur=opt.glow||0; ctx.fillRect(cx+c*cell, y0+r*cell, dot, dot); ctx.shadowBlur=0; }
+      }}
+    }
+    return str.length*cw - cell;
+  }
+  function pad(n){ return (n<10?"0":"")+n; }
+
+  // main clock
+  (function(){
+    var c=document.getElementById("clock"); if(!c) return;
+    var ctx=c.getContext("2d");
+    function amber(){ return getComputedStyle(document.documentElement).getPropertyValue("--amber").trim()||"#FFC24B"; }
+    function render(){
+      var now=new Date();
+      var str=pad(now.getHours())+":"+pad(now.getMinutes())+":"+pad(now.getSeconds());
+      ctx.clearRect(0,0,c.width,c.height);
+      var opt={dot:12,gap:3,color:amber(),x:16,y:18,glow:8,dim:"rgba(160,150,220,0.10)"};
+      // center it
+      var cell=opt.dot+opt.gap, cw=5*cell+cell, total=str.length*cw-cell;
+      opt.x=Math.round((c.width-total)/2);
+      drawMatrix(ctx,str,opt);
+    }
+    render();
+    setInterval(render, 1000);
+  })();
+
+  // mini clocks in palette swatches
+  function pad2(n){return (n<10?"0":"")+n;}
+  (function(){
+    document.querySelectorAll("canvas.mini").forEach(function(cv){
+      var ctx=cv.getContext("2d"), color=cv.getAttribute("data-color");
+      function render(){
+        var now=new Date(); var str=pad2(now.getHours())+":"+pad2(now.getMinutes());
+        ctx.clearRect(0,0,cv.width,cv.height);
+        var opt={dot:3,gap:1,color:color,x:6,y:4,glow:4,dim:"rgba(160,150,220,0.10)"};
+        var cell=opt.dot+opt.gap, cw=5*cell+cell, total=str.length*cw-cell;
+        opt.x=Math.round((cv.width-total)/2);
+        drawMatrix(ctx,str,opt);
+      }
+      render(); setInterval(render,1000);
+    });
+  })();
+
+  // starfield
+  (function(){
+    var c=document.getElementById("stars"); if(!c) return;
+    var ctx=c.getContext("2d");
+    for(var i=0;i<70;i++){
+      var x=Math.floor(Math.random()*c.width), y=Math.floor(Math.random()*c.height*0.7);
+      var s=Math.random()<0.2?2:1;
+      ctx.fillStyle="rgba(255,255,255,"+(0.3+Math.random()*0.6)+")";
+      ctx.fillRect(x,y,s,s);
+    }
+  })();
+
+  // pixel city skyline
+  (function(){
+    var c=document.getElementById("city"); if(!c) return;
+    var ctx=c.getContext("2d"), W=c.width, H=c.height;
+    var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var px=6; // pixel size
+    var cols=Math.ceil(W/px);
+    // build skyline heights (layered)
+    var layers=[
+      {color:"#0A0B24", min:0.30, max:0.62, win:"#3A2E66", lit:"#7C6BC0", density:0.10},
+      {color:"#141640", min:0.42, max:0.86, win:"#4A3A78", lit:"#FFC24B", density:0.16}
+    ];
+    var buildings=[];
+    layers.forEach(function(L){
+      var x=0;
+      while(x<cols){
+        var w=3+Math.floor(Math.random()*5);
+        var h=Math.floor((L.min+Math.random()*(L.max-L.min))*(H/px));
+        buildings.push({layer:L,x:x,w:w,h:h,seed:Math.random()});
+        x+=w+ (Math.random()<0.3?1:0);
+      }
+    });
+    function draw(t){
+      ctx.clearRect(0,0,W,H);
+      buildings.forEach(function(b){
+        var L=b.layer, bx=b.x*px, top=H-b.h*px;
+        ctx.fillStyle=L.color;
+        ctx.fillRect(bx, top, b.w*px, b.h*px);
+        // windows
+        for(var wy=top+2*px; wy<H-px; wy+=2*px){
+          for(var wx=bx+px; wx<bx+(b.w-1)*px; wx+=2*px){
+            var r=Math.sin((wx*13.1+wy*7.7)+b.seed*40);
+            var lit = ((r*0.5+0.5) < L.density*3.2);
+            var flick = !reduce && (Math.sin(t*0.001 + wx*0.7 + wy*0.3) > 0.985);
+            ctx.fillStyle = (lit ^ flick) ? L.lit : L.win;
+            ctx.fillRect(wx, wy, px, px);
+          }
+        }
+      });
+    }
+    if(reduce){ draw(0); return; }
+    function loop(ts){ draw(ts); requestAnimationFrame(loop); }
+    requestAnimationFrame(loop);
+  })();
+</script>
+</body></html>

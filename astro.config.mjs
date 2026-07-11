@@ -6,5 +6,14 @@ import cloudflare from "@astrojs/cloudflare";
 export default defineConfig({
   site: "https://arigatouapps.com",
   output: "hybrid",
-  adapter: cloudflare()
+  adapter: cloudflare(),
+  // 多言語ルーティング。日本語はルート(/)、英語は /en/ で配信する。
+  // prefixDefaultLocale: false → デフォルト言語(ja)にはURLプレフィックスを付けない。
+  i18n: {
+    defaultLocale: "ja",
+    locales: ["ja", "en"],
+    routing: {
+      prefixDefaultLocale: false,
+    },
+  },
 });

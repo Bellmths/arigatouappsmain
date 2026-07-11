@@ -1,0 +1,563 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>TimeAware — Soft UI Launcher</title>
+<style>
+  /* ============ TOKENS ============ */
+  :root {
+    --bg: #F0F0F3;
+    --sh-dark: #D1D9E6;
+    --sh-light: #FFFFFF;
+    --hl: rgba(255, 255, 255, 0.85);
+    --ink: #2E3138;
+    --ink-2: #565C69;
+    --ink-soft: #9AA0AC;
+    --invert-bg: #23262B;
+    --invert-ink: #F4F5F7;
+    --invert-soft: #868C97;
+    --accent: #FF7A3D;
+    --radius-lg: 30px;
+    --radius-md: 22px;
+    --radius-sm: 16px;
+
+    --font: ui-rounded, "SF Pro Rounded", "Hiragino Maru Gothic ProN",
+      "Quicksand", "BIZ UDPGothic", system-ui, -apple-system, "Segoe UI",
+      Roboto, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #2B2E34;
+      --sh-dark: #202226;
+      --sh-light: #363A41;
+      --hl: rgba(255, 255, 255, 0.06);
+      --ink: #E9EBEF;
+      --ink-2: #BCC1CB;
+      --ink-soft: #7E848F;
+      --invert-bg: #EDEFF2;
+      --invert-ink: #23262B;
+      --invert-soft: #6C727E;
+      --accent: #FF8A52;
+    }
+  }
+  :root[data-theme="light"] {
+    --bg: #F0F0F3; --sh-dark: #D1D9E6; --sh-light: #FFFFFF;
+    --hl: rgba(255,255,255,0.85);
+    --ink: #2E3138; --ink-2: #565C69; --ink-soft: #9AA0AC;
+    --invert-bg: #23262B; --invert-ink: #F4F5F7; --invert-soft: #868C97;
+    --accent: #FF7A3D;
+  }
+  :root[data-theme="dark"] {
+    --bg: #2B2E34; --sh-dark: #202226; --sh-light: #363A41;
+    --hl: rgba(255,255,255,0.06);
+    --ink: #E9EBEF; --ink-2: #BCC1CB; --ink-soft: #7E848F;
+    --invert-bg: #EDEFF2; --invert-ink: #23262B; --invert-soft: #6C727E;
+    --accent: #FF8A52;
+  }
+
+  /* ============ BASE ============ */
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font);
+    font-weight: 400;
+    line-height: 1.6;
+    letter-spacing: -0.01em;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3, p { margin: 0; }
+  a { color: inherit; text-decoration: none; }
+  .wrap { width: 100%; max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+
+  .eyebrow {
+    font-size: 0.7rem; font-weight: 700; letter-spacing: 0.18em;
+    text-transform: uppercase; color: var(--ink-soft);
+  }
+
+  /* ============ NEUMORPHIC PRIMITIVES ============ */
+  .neu {
+    background: var(--bg);
+    border-radius: var(--radius-lg);
+    box-shadow: -7px -7px 16px var(--hl), 8px 8px 18px var(--sh-dark);
+  }
+  .neu-sm {
+    background: var(--bg);
+    border-radius: var(--radius-md);
+    box-shadow: -4px -4px 11px var(--hl), 4px 4px 11px var(--sh-dark);
+  }
+  .neu-in {
+    background: var(--bg);
+    box-shadow: inset -4px -4px 9px var(--hl), inset 4px 4px 9px var(--sh-dark);
+  }
+
+  /* ============ NAV ============ */
+  .nav { position: sticky; top: 0; z-index: 30; padding: 18px 0;
+    background: color-mix(in srgb, var(--bg) 88%, transparent);
+    backdrop-filter: blur(10px); }
+  .nav__in { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+  .brand { display: flex; align-items: center; gap: 12px; font-weight: 800; font-size: 1.15rem; letter-spacing: -0.02em; }
+  .brand__dot { width: 34px; height: 34px; border-radius: 12px; display: grid; place-items: center; }
+  .brand__dot span { width: 12px; height: 12px; border-radius: 50%; background: var(--ink);
+    box-shadow: inset -2px -2px 4px var(--hl), inset 2px 2px 4px var(--sh-dark); }
+  .nav__links { display: flex; align-items: center; gap: 8px; }
+  .nav__links a { font-size: 0.82rem; font-weight: 600; color: var(--ink-2); padding: 9px 15px; border-radius: 999px; }
+  .nav__links a:hover { color: var(--ink); }
+
+  .pill-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-weight: 700; font-size: 0.85rem; color: var(--ink);
+    padding: 12px 22px; border-radius: 999px; cursor: pointer;
+    background: var(--bg); border: none; font-family: var(--font);
+    box-shadow: -4px -4px 11px var(--hl), 4px 4px 11px var(--sh-dark);
+    transition: box-shadow 0.18s ease, transform 0.18s ease;
+  }
+  .pill-btn:hover { transform: translateY(-1px); }
+  .pill-btn:active,
+  .pill-btn.is-pressed {
+    box-shadow: inset -3px -3px 7px var(--hl), inset 3px 3px 7px var(--sh-dark);
+    transform: translateY(0);
+  }
+  .pill-btn--ghost { box-shadow: inset -3px -3px 7px var(--hl), inset 3px 3px 7px var(--sh-dark); color: var(--ink-2); }
+  .pill-btn--mini { padding: 10px 15px; font-size: 0.78rem; font-weight: 800; letter-spacing: 0.02em; }
+  .pill-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+  /* ============ HERO ============ */
+  .hero { padding: clamp(44px, 8vw, 92px) 0 clamp(48px, 8vw, 96px); }
+  .hero__grid { display: grid; grid-template-columns: 1.05fr 0.95fr; gap: clamp(32px, 6vw, 72px); align-items: center; }
+  .hero__eyebrow { display: inline-block; padding: 8px 16px; border-radius: 999px; margin-bottom: 26px; }
+  .hero h1 {
+    font-size: clamp(2.3rem, 5.4vw, 3.7rem); font-weight: 800; line-height: 1.08;
+    letter-spacing: -0.035em; text-wrap: balance; margin-bottom: 22px;
+  }
+  .hero h1 em { font-style: normal; color: var(--ink-soft); }
+  .hero__lead { font-size: clamp(1rem, 1.4vw, 1.12rem); font-weight: 400; color: var(--ink-2); max-width: 32ch; margin-bottom: 34px; }
+  .hero__cta { display: flex; gap: 14px; flex-wrap: wrap; }
+  .hero__meta { display: flex; gap: 26px; margin-top: 38px; }
+  .hero__meta div { display: flex; flex-direction: column; gap: 2px; }
+  .hero__meta b { font-size: 1.35rem; font-weight: 800; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+  .hero__meta span { font-size: 0.72rem; color: var(--ink-soft); font-weight: 600; }
+
+  /* ============ PHONE ============ */
+  .phone-stage { display: flex; justify-content: center; }
+  .phone {
+    width: 100%; max-width: 320px; padding: 16px;
+    border-radius: 46px;
+  }
+  .screen {
+    border-radius: 34px; padding: 18px 16px 16px;
+    display: flex; flex-direction: column; gap: 14px;
+  }
+
+  /* -- widget: header -- */
+  .w-head { display: flex; justify-content: space-between; align-items: flex-start; padding: 4px 6px 0; }
+  .w-head__today { font-size: 1.55rem; font-weight: 800; letter-spacing: -0.03em; line-height: 1; }
+  .w-head__desc { font-size: 0.72rem; font-weight: 300; color: var(--ink-2); line-height: 1.35; margin-top: 8px; }
+  .w-head__fine { font-size: 0.6rem; font-weight: 600; letter-spacing: 0.06em; color: var(--ink-soft); margin-top: 8px; text-transform: uppercase; }
+  .w-head__right { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+  .w-head__right svg { width: 40px; height: 40px; color: var(--ink-2); }
+  .w-head__temp { font-size: 1.15rem; font-weight: 800; letter-spacing: -0.02em; }
+  .w-head__feels { font-size: 0.55rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-soft); }
+
+  /* -- widget: date + calendar -- */
+  .w-date { display: grid; grid-template-columns: 1fr 1.12fr; gap: 12px; padding: 16px; align-items: stretch; }
+  .w-date__l { display: flex; flex-direction: column; justify-content: center; padding-left: 6px; }
+  .w-date__num { font-size: 4.4rem; font-weight: 300; line-height: 0.9; letter-spacing: -0.04em; font-variant-numeric: tabular-nums; }
+  .w-date__dow { font-size: 0.78rem; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; margin-top: 8px; }
+  .w-date__mon { font-size: 0.64rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-soft); margin-top: 3px; }
+  .cal { background: var(--invert-bg); border-radius: var(--radius-sm); padding: 11px 10px; color: var(--invert-ink); }
+  .cal__mon { font-size: 0.6rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--invert-soft); text-align: center; margin-bottom: 7px; }
+  .cal__grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px 0; }
+  .cal__grid span { font-size: 0.52rem; font-weight: 500; text-align: center; line-height: 1.9;
+    font-variant-numeric: tabular-nums; color: var(--invert-ink); }
+  .cal__grid .dow { color: var(--invert-soft); font-weight: 700; font-size: 0.46rem; }
+  .cal__grid .today { position: relative; color: #fff; font-weight: 800; }
+  .cal__grid .today::before {
+    content: ""; position: absolute; inset: 50% auto auto 50%;
+    width: 15px; height: 15px; border-radius: 50%; background: var(--accent);
+    transform: translate(-50%, -50%); z-index: -1;
+  }
+
+  /* -- widget: battery -- */
+  .w-batt { display: flex; align-items: center; gap: 14px; padding: 14px 16px; }
+  .batt__track { position: relative; flex: 1; height: 16px; border-radius: 999px; }
+  .batt__fill { position: absolute; inset: 3px auto 3px 3px; width: 68%; border-radius: 999px;
+    background: linear-gradient(180deg, var(--ink-2), var(--ink)); }
+  .batt__thumb { position: absolute; top: 50%; left: 68%; width: 22px; height: 22px; border-radius: 50%;
+    transform: translate(-60%, -50%); background: var(--bg);
+    box-shadow: -2px -2px 5px var(--hl), 2px 2px 5px var(--sh-dark); }
+  .batt__bubble { position: absolute; left: 68%; top: -20px; transform: translateX(-60%);
+    font-size: 0.6rem; font-weight: 800; color: var(--ink); font-variant-numeric: tabular-nums; }
+  .icon-btn { width: 40px; height: 40px; border-radius: 50%; flex: none; display: grid; place-items: center; color: var(--ink-2); }
+  .icon-btn svg { width: 18px; height: 18px; }
+  .batt__lbl { font-size: 0.58rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-soft); }
+
+  /* -- widget: media -- */
+  .w-media { display: flex; align-items: center; gap: 13px; padding: 12px 14px; }
+  .media__play { width: 46px; height: 46px; border-radius: 50%; flex: none; display: grid; place-items: center; color: var(--ink); }
+  .media__play svg { width: 17px; height: 17px; margin-left: 2px; }
+  .media__mid { flex: 1; min-width: 0; }
+  .media__title { font-size: 0.86rem; font-weight: 800; letter-spacing: -0.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .media__artist { font-size: 0.68rem; font-weight: 300; color: var(--ink-soft); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .media__skip { width: 38px; height: 38px; border-radius: 50%; flex: none; display: grid; place-items: center; color: var(--ink-2); }
+  .media__skip svg { width: 16px; height: 16px; }
+
+  /* -- widget: bottom pills -- */
+  .w-pills { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .qpill { height: 54px; border-radius: 18px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; cursor: pointer;
+    transition: box-shadow 0.16s ease; }
+  .qpill:active { box-shadow: inset -3px -3px 7px var(--hl), inset 3px 3px 7px var(--sh-dark); }
+  .qpill b { font-size: 0.9rem; font-weight: 800; letter-spacing: -0.01em; font-variant-numeric: tabular-nums; }
+  .qpill svg { width: 17px; height: 17px; color: var(--ink-2); }
+  .qpill span { font-size: 0.5rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-soft); }
+
+  /* ============ SECTION ============ */
+  .section { padding: clamp(46px, 8vw, 90px) 0; }
+  .section__head { max-width: 42ch; margin-bottom: 46px; }
+  .section__head h2 { font-size: clamp(1.7rem, 3.6vw, 2.4rem); font-weight: 800; letter-spacing: -0.03em; line-height: 1.12; margin: 14px 0 14px; text-wrap: balance; }
+  .section__head p { color: var(--ink-2); font-size: 1rem; }
+
+  .feat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 22px; }
+  .feat { padding: 26px 24px 24px; display: flex; flex-direction: column; gap: 12px; }
+  .feat__ic { width: 50px; height: 50px; border-radius: 16px; display: grid; place-items: center; color: var(--ink); margin-bottom: 6px; }
+  .feat__ic svg { width: 22px; height: 22px; }
+  .feat h3 { font-size: 1.08rem; font-weight: 800; letter-spacing: -0.02em; }
+  .feat p { font-size: 0.9rem; color: var(--ink-2); font-weight: 400; line-height: 1.6; }
+  .feat__tag { margin-top: auto; font-size: 0.62rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-soft); }
+
+  /* ============ PHILOSOPHY STRIP ============ */
+  .creed { padding: clamp(40px, 7vw, 80px) 0; }
+  .creed__card { padding: clamp(36px, 6vw, 64px); text-align: center; }
+  .creed__card p { font-size: clamp(1.4rem, 3.4vw, 2.15rem); font-weight: 800; letter-spacing: -0.03em; line-height: 1.28; text-wrap: balance; }
+  .creed__card p .mute { color: var(--ink-soft); }
+  .creed__spec { display: flex; gap: 30px; justify-content: center; flex-wrap: wrap; margin-top: 34px; }
+  .creed__spec div { display: flex; flex-direction: column; gap: 3px; }
+  .creed__spec b { font-size: 0.95rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .creed__spec span { font-size: 0.6rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-soft); }
+
+  /* ============ CTA / FOOTER ============ */
+  .final { padding: clamp(50px, 8vw, 96px) 0 40px; text-align: center; }
+  .final h2 { font-size: clamp(2rem, 5vw, 3rem); font-weight: 800; letter-spacing: -0.035em; line-height: 1.08; text-wrap: balance; margin-bottom: 18px; }
+  .final p { color: var(--ink-2); max-width: 38ch; margin: 0 auto 34px; }
+  .final__cta { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+  .foot { margin-top: clamp(48px, 8vw, 88px); padding: 30px 0; }
+  .foot__in { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  .foot__in small { color: var(--ink-soft); font-size: 0.72rem; font-weight: 600; }
+
+  /* ============ MOTION ============ */
+  .reveal { opacity: 0; transform: translateY(18px); transition: opacity 0.7s ease, transform 0.7s ease; }
+  .reveal.in { opacity: 1; transform: none; }
+  @media (prefers-reduced-motion: reduce) {
+    .reveal { opacity: 1; transform: none; transition: none; }
+    .pill-btn, .qpill { transition: none; }
+  }
+
+  /* ============ RESPONSIVE ============ */
+  @media (max-width: 860px) {
+    .hero__grid { grid-template-columns: 1fr; gap: 48px; }
+    .hero__copy { order: 2; text-align: center; }
+    .hero__eyebrow { margin-inline: auto; }
+    .hero__lead { margin-inline: auto; }
+    .hero__cta, .hero__meta { justify-content: center; }
+    .phone-stage { order: 1; }
+    .nav__links a:not(.pill-btn) { display: none; }
+  }
+</style>
+
+<nav class="nav">
+  <div class="wrap nav__in">
+    <div class="brand">
+      <span class="brand__dot neu-sm"><span></span></span>
+      TimeAware
+    </div>
+    <div class="nav__links">
+      <a href="#features" data-i18n="nav.widgets">ウィジェット</a>
+      <a href="#creed" data-i18n="nav.ethos">思想</a>
+      <button class="pill-btn pill-btn--mini pill-btn--ghost" type="button" id="langToggle" aria-label="Switch language">EN</button>
+      <button class="pill-btn" type="button">Google&nbsp;Play</button>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap hero__grid">
+    <div class="hero__copy">
+      <span class="eyebrow hero__eyebrow neu-in">Dumbphone Launcher · Soft UI</span>
+      <h1 data-i18n-html="hero.h1">スマホを、<br>いちばん静かな<br><em>ホームに。</em></h1>
+      <p class="hero__lead" data-i18n="hero.lead">
+        使うアプリだけを残し、スクリーンタイムをひと目に。やわらかな陰影だけでできた、余白のあるホーム画面。
+      </p>
+      <div class="hero__cta">
+        <button class="pill-btn" type="button">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M3 3.5v17l14-8.5-14-8.5zm12.5 8.5L5 5.6v12.8L15.5 12z"/></svg>
+          <span data-i18n="cta.get">Google Play で入手</span>
+        </button>
+        <button class="pill-btn pill-btn--ghost" type="button" data-i18n="cta.theme">テーマを見る</button>
+      </div>
+      <div class="hero__meta">
+        <div><b>14</b><span>apps on play</span></div>
+        <div><b>0</b><span>accent colors</span></div>
+        <div><b>100%</b><span>offline</span></div>
+      </div>
+    </div>
+
+    <div class="phone-stage">
+      <div class="phone neu" role="img" aria-label="TimeAware neumorphic home screen: a weather header, date with an inverted mini-calendar, battery, media and quick-action widgets.">
+        <div class="screen neu-in">
+
+          <!-- 1. header (no card) -->
+          <div class="w-head">
+            <div>
+              <div class="w-head__today">today.</div>
+              <div class="w-head__desc" data-i18n-html="phone.weather">おだやかに晴れ。<br>空気は少し涼しい。</div>
+              <div class="w-head__fine">Hum 48% · Wind 3.2 m/s</div>
+            </div>
+            <div class="w-head__right">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="8" cy="8" r="3.2"/>
+                <path d="M8 1.5v1.6M8 12.9v1.6M1.5 8h1.6M12.9 8h1.6M3.4 3.4l1.1 1.1M11.5 11.5l1.1 1.1M3.4 12.6l1.1-1.1M11.5 4.5l1.1-1.1"/>
+                <path d="M10 17.5a4 4 0 1 1 3.8-5.2 3.2 3.2 0 0 1 .9 6.2H10.2" fill="var(--bg)"/>
+              </svg>
+              <div class="w-head__temp">21°</div>
+              <div class="w-head__feels">Feels like</div>
+            </div>
+          </div>
+
+          <!-- 2. date + calendar -->
+          <div class="w-date neu-sm">
+            <div class="w-date__l">
+              <div class="w-date__num">11</div>
+              <div class="w-date__dow">Saturday</div>
+              <div class="w-date__mon">July 2026</div>
+            </div>
+            <div class="cal">
+              <div class="cal__mon">July</div>
+              <div class="cal__grid">
+                <span class="dow">S</span><span class="dow">M</span><span class="dow">T</span><span class="dow">W</span><span class="dow">T</span><span class="dow">F</span><span class="dow">S</span>
+                <span></span><span></span><span></span><span>1</span><span>2</span><span>3</span><span>4</span>
+                <span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span><span class="today">11</span>
+                <span>12</span><span>13</span><span>14</span><span>15</span><span>16</span><span>17</span><span>18</span>
+                <span>19</span><span>20</span><span>21</span><span>22</span><span>23</span><span>24</span><span>25</span>
+                <span>26</span><span>27</span><span>28</span><span>29</span><span>30</span><span>31</span><span></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3. battery -->
+          <div class="w-batt neu-sm">
+            <span class="batt__lbl">Batt</span>
+            <div class="batt__track neu-in">
+              <div class="batt__bubble">68%</div>
+              <div class="batt__fill"></div>
+              <div class="batt__thumb"></div>
+            </div>
+            <span class="icon-btn neu-sm" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8z"/></svg>
+            </span>
+          </div>
+
+          <!-- 4. media -->
+          <div class="w-media neu-sm">
+            <span class="media__play neu-in" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M5 3v18l15-9L5 3z"/></svg>
+            </span>
+            <div class="media__mid">
+              <div class="media__title">Weightless</div>
+              <div class="media__artist">Marconi Union</div>
+            </div>
+            <span class="media__skip neu-sm" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M5 4l10 8-10 8V4zm12 0h2v16h-2V4z"/></svg>
+            </span>
+          </div>
+
+          <!-- 5. bottom pills -->
+          <div class="w-pills">
+            <button class="qpill neu-sm" type="button">
+              <b>9:41</b><span>Time</span>
+            </button>
+            <button class="qpill neu-sm" type="button">
+              <b>21°</b><span>Weather</span>
+            </button>
+            <button class="qpill neu-sm" type="button" aria-label="Open notification shade">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+              <span>Shade</span>
+            </button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section class="section" id="features">
+  <div class="wrap">
+    <div class="section__head reveal">
+      <span class="eyebrow">The widgets</span>
+      <h2 data-i18n="sec.title">陰影だけでできた、5つの部品。</h2>
+      <p data-i18n="sec.desc">色でも線でもなく、光と影の向きだけで凸凹を描く。すべて背景と同じオフホワイトのまま、必要な情報だけが浮かび上がります。</p>
+    </div>
+    <div class="feat-grid">
+      <div class="feat neu reveal">
+        <span class="feat__ic neu-in"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="16" rx="3"/><path d="M3 9h18M8 2.5v4M16 2.5v4"/><circle cx="16" cy="14.5" r="1.6" fill="var(--accent)" stroke="none"/></svg></span>
+        <h3 data-i18n="feat1.t">日付 & カレンダー</h3>
+        <p data-i18n="feat1.d">特大の日付に、黒地反転のミニ月間ビューを添えて。今日はただ一点、オレンジの丸で。</p>
+        <span class="feat__tag">Inverted card · 160dp</span>
+      </div>
+      <div class="feat neu reveal">
+        <span class="feat__ic neu-in"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8z"/></svg></span>
+        <h3 data-i18n="feat2.t">バッテリー</h3>
+        <p data-i18n="feat2.d">凹んだトラックを滑るスライダーと、現在値の吹き出し。稲妻ボタンは丸い凸のまま。</p>
+        <span class="feat__tag">BatteryManager</span>
+      </div>
+      <div class="feat neu reveal">
+        <span class="feat__ic neu-in"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M5 3v18l15-9L5 3z"/></svg></span>
+        <h3 data-i18n="feat3.t">メディア</h3>
+        <p data-i18n="feat3.d">凹型の再生ボタン、曲名とアーティスト、スキップ。再生中のセッションにそっと連動。</p>
+        <span class="feat__tag">MediaSession</span>
+      </div>
+      <div class="feat neu reveal">
+        <span class="feat__ic neu-in"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="9" width="7" height="6" rx="3"/><rect x="14" y="9" width="7" height="6" rx="3"/></svg></span>
+        <h3 data-i18n="feat4.t">クイックピル</h3>
+        <p data-i18n="feat4.d">時刻・気温・通知シェード。独立した3つの凸ボタンで、押した瞬間だけ凹む。</p>
+        <span class="feat__tag">3× pill · 56dp</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="creed" id="creed">
+  <div class="wrap">
+    <div class="creed__card neu reveal">
+      <p data-i18n-html="creed.p">
+        Soft UI. Off-white.<br>
+        <span class="mute">影は elevation ではなく、2枚のレイヤーで。</span>
+      </p>
+      <div class="creed__spec">
+        <div><b>#F0F0F3</b><span>Surface</span></div>
+        <div><b>−4,−4</b><span>Light · white 0.8</span></div>
+        <div><b>+4,+4</b><span>Shadow · #D1D9E6</span></div>
+        <div><b>12dp</b><span>Blur</span></div>
+        <div><b>24–32</b><span>Radius</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="final">
+  <div class="wrap">
+    <h2 class="reveal" data-i18n-html="final.title">静けさは、<br>設定で選べる。</h2>
+    <p class="reveal" data-i18n="final.desc">既存のホーム構成はそのまま。ニューモーフィズムは、切り替えられる一つのテーマとして。</p>
+    <div class="final__cta reveal">
+      <button class="pill-btn" type="button">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M3 3.5v17l14-8.5-14-8.5z"/></svg>
+        <span data-i18n="cta.get">Google Play で入手</span>
+      </button>
+      <button class="pill-btn pill-btn--ghost" type="button" data-i18n="final.other">Vizfy / 他のアプリ</button>
+    </div>
+  </div>
+  <div class="wrap foot">
+    <div class="foot__in">
+      <div class="brand"><span class="brand__dot neu-sm"><span></span></span>TimeAware</div>
+      <small>© 2026 ArigatouApps · Build small, ship well.</small>
+    </div>
+  </div>
+</section>
+
+<script>
+  // ============ i18n ============
+  var I18N = {
+    ja: {
+      "nav.widgets": "ウィジェット",
+      "nav.ethos": "思想",
+      "hero.h1": "スマホを、<br>いちばん静かな<br><em>ホームに。</em>",
+      "hero.lead": "使うアプリだけを残し、スクリーンタイムをひと目に。やわらかな陰影だけでできた、余白のあるホーム画面。",
+      "cta.get": "Google Play で入手",
+      "cta.theme": "テーマを見る",
+      "phone.weather": "おだやかに晴れ。<br>空気は少し涼しい。",
+      "sec.title": "陰影だけでできた、5つの部品。",
+      "sec.desc": "色でも線でもなく、光と影の向きだけで凸凹を描く。すべて背景と同じオフホワイトのまま、必要な情報だけが浮かび上がります。",
+      "feat1.t": "日付 & カレンダー",
+      "feat1.d": "特大の日付に、黒地反転のミニ月間ビューを添えて。今日はただ一点、オレンジの丸で。",
+      "feat2.t": "バッテリー",
+      "feat2.d": "凹んだトラックを滑るスライダーと、現在値の吹き出し。稲妻ボタンは丸い凸のまま。",
+      "feat3.t": "メディア",
+      "feat3.d": "凹型の再生ボタン、曲名とアーティスト、スキップ。再生中のセッションにそっと連動。",
+      "feat4.t": "クイックピル",
+      "feat4.d": "時刻・気温・通知シェード。独立した3つの凸ボタンで、押した瞬間だけ凹む。",
+      "creed.p": "Soft UI. Off-white.<br><span class=\"mute\">影は elevation ではなく、2枚のレイヤーで。</span>",
+      "final.title": "静けさは、<br>設定で選べる。",
+      "final.desc": "既存のホーム構成はそのまま。ニューモーフィズムは、切り替えられる一つのテーマとして。",
+      "final.other": "Vizfy / 他のアプリ",
+      "_lang": "EN"
+    },
+    en: {
+      "nav.widgets": "Widgets",
+      "nav.ethos": "Ethos",
+      "hero.h1": "The quietest home<br>your phone<br><em>has ever had.</em>",
+      "hero.lead": "Keep only the apps you use and see your screen time at a glance — a home screen made of soft shadow and open space.",
+      "cta.get": "Get it on Google Play",
+      "cta.theme": "See the theme",
+      "phone.weather": "Mostly clear.<br>The air is a touch cool.",
+      "sec.title": "Five parts, built from shadow alone.",
+      "sec.desc": "No color, no outlines — depth comes only from the direction of light and shadow. Everything stays the same off-white; only what matters rises to the surface.",
+      "feat1.t": "Date & Calendar",
+      "feat1.d": "An oversized date beside an inverted mini-month. Today is a single orange dot, nothing more.",
+      "feat2.t": "Battery",
+      "feat2.d": "A slider gliding along a recessed track, the level in a small bubble. The bolt button stays a round convex.",
+      "feat3.t": "Media",
+      "feat3.d": "A concave play button, title and artist, skip. Quietly linked to whatever session is playing.",
+      "feat4.t": "Quick Pills",
+      "feat4.d": "Time, weather, notification shade — three independent convex buttons that press in only when tapped.",
+      "creed.p": "Soft UI. Off-white.<br><span class=\"mute\">Shadow isn't elevation — it's two layers.</span>",
+      "final.title": "Calm is just<br>a setting away.",
+      "final.desc": "Your existing home stays intact. Neumorphism is simply one theme you can switch on.",
+      "final.other": "Vizfy / other apps",
+      "_lang": "日本語"
+    }
+  };
+
+  function applyLang(lang) {
+    var dict = I18N[lang] || I18N.ja;
+    document.documentElement.lang = lang;
+    document.querySelectorAll("[data-i18n]").forEach(function (el) {
+      var k = el.getAttribute("data-i18n");
+      if (dict[k] != null) el.textContent = dict[k];
+    });
+    document.querySelectorAll("[data-i18n-html]").forEach(function (el) {
+      var k = el.getAttribute("data-i18n-html");
+      if (dict[k] != null) el.innerHTML = dict[k];
+    });
+    var tg = document.getElementById("langToggle");
+    if (tg) tg.textContent = dict._lang;
+    try { localStorage.setItem("ta_lang", lang); } catch (e) {}
+    window.__lang = lang;
+  }
+
+  (function initLang() {
+    var saved = null;
+    try { saved = localStorage.getItem("ta_lang"); } catch (e) {}
+    var nav = (navigator.language || "").toLowerCase();
+    var lang = saved || (nav.indexOf("ja") === 0 ? "ja" : "en");
+    applyLang(lang);
+    var tg = document.getElementById("langToggle");
+    if (tg) tg.addEventListener("click", function () {
+      applyLang(window.__lang === "ja" ? "en" : "ja");
+    });
+  })();
+
+  // ============ scroll reveal ============
+  (function () {
+    var els = document.querySelectorAll(".reveal");
+    if (!("IntersectionObserver" in window)) {
+      els.forEach(function (e) { e.classList.add("in"); });
+      return;
+    }
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (en.isIntersecting) { en.target.classList.add("in"); io.unobserve(en.target); }
+      });
+    }, { threshold: 0.16 });
+    els.forEach(function (e) { io.observe(e); });
+  })();
+</script>
+</body></html>

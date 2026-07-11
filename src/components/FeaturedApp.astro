@@ -1,29 +1,42 @@
 ---
 import type { AndroidAppWithUrl } from "../data/apps";
+import type { Lang } from "../i18n";
+import { t, tList, langBase } from "../i18n";
+import { useT } from "../i18n/ui";
 interface Props {
   app: AndroidAppWithUrl;
+  lang: Lang;
 }
-const { app } = Astro.props;
+const { app, lang } = Astro.props;
+const T = useT(lang);
+const features = app.features ? tList(app.features, lang) : [];
+const detailHref = `${langBase(lang)}apps/${app.id}`;
+// Google Play 公式バッジは言語別画像が用意されている（ja / en）。
+const badgeLocale = lang === "ja" ? "ja" : "en";
+const badgeSrc = `https://play.google.com/intl/${badgeLocale}/badges/static/images/badges/${badgeLocale}_badge_web_generic.png`;
 ---
 <div class="feat">
   <div class="feat__body">
-    <span class="eyebrow">★ featured · android</span>
+    <span class="eyebrow">{T("apps.featured")}</span>
     <h3 class="feat__name display">{app.name}</h3>
-    <p class="feat__desc">{app.desc}</p>
-    {app.features && (
+    <p class="feat__desc">{t(app.desc, lang)}</p>
+    {features.length > 0 && (
       <ul class="feat__list">
-        {app.features.map((f) => <li>{f}</li>)}
+        {features.map((f) => <li>{f}</li>)}
       </ul>
     )}
-    <a class="feat__badge" href={app.playUrl} target="_blank" rel="noopener"
-      aria-label={`${app.name} を Google Play で入手`}>
-      <img
-        src="https://play.google.com/intl/ja/badges/static/images/badges/ja_badge_web_generic.png"
-        alt="Google Play で手に入れよう"
-        height="56"
-        loading="lazy"
-      />
-    </a>
+    <div class="feat__actions">
+      <a class="feat__badge" href={app.playUrl} target="_blank" rel="noopener"
+        aria-label={T("apps.getOnPlay")}>
+        <img
+          src={badgeSrc}
+          alt={T("apps.getOnPlay")}
+          height="56"
+          loading="lazy"
+        />
+      </a>
+      <a class="feat__detail" href={detailHref}>{T("card.details")} →</a>
+    </div>
   </div>
   <div class="feat__art" aria-hidden="true">
     {app.icon ? <img class="feat__icon" src={app.icon} alt="" /> : <span>{app.emoji ?? "📱"}</span>}
@@ -61,6 +74,9 @@ const { app } = Astro.props;
     font-family: var(--font-mono);
     color: var(--soft);
   }
+  .feat__actions { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+  .feat__detail { font-family: var(--font-mono); font-size: 0.82rem; }
+  .feat__detail:hover { text-decoration: underline; }
   .feat__badge {
     display: inline-block;
     /* 公式バッジは透明の余白を含むため、左の視覚位置を合わせる */
