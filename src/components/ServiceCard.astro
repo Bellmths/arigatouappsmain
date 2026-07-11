@@ -1,12 +1,18 @@
 ---
 import Badge from "./Badge.astro";
 import type { Service } from "../data/services";
+import type { Lang } from "../i18n";
+import { t } from "../i18n";
+import { useT } from "../i18n/ui";
 interface Props {
   service: Service;
+  lang: Lang;
 }
-const { service } = Astro.props;
+const { service, lang } = Astro.props;
+const T = useT(lang);
 const isLink = service.status === "live" && service.url;
 const accent = `var(--c-${service.accent ?? "mint"})`;
+const cta = isLink ? T("cta.external") : T("cta.view");
 ---
 <a
   class="proj"
@@ -19,9 +25,9 @@ const accent = `var(--c-${service.accent ?? "mint"})`;
     <span class="eyebrow">project</span>
     <Badge status={service.status} />
   </div>
-  <h3 class="proj__title">{service.name}</h3>
-  <p class="proj__desc">{service.desc}</p>
-  <span class="proj__cta">{service.cta ?? "見る"} →</span>
+  <h3 class="proj__title">{t(service.name, lang)}</h3>
+  <p class="proj__desc">{t(service.desc, lang)}</p>
+  <span class="proj__cta">{cta} →</span>
 </a>
 
 <style>

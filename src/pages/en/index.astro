@@ -1,0 +1,12 @@
+---
+// 英語トップページ（/en/）。中身は Home.astro に集約し、lang を渡すだけ。
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Home from "../../components/Home.astro";
+import { homeJsonLd } from "../../lib/structuredData";
+
+const lang = "en";
+---
+
+<BaseLayout lang={lang} jsonLd={homeJsonLd(lang)}>
+  <Home lang={lang} />
+</BaseLayout>
