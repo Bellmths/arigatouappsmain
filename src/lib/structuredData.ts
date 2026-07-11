@@ -8,6 +8,7 @@ import { faq } from "../data/faq";
 import { t, langBase } from "../i18n";
 import type { Lang } from "../i18n";
 import type { AndroidAppWithUrl } from "../data/apps";
+import { screenshots } from "../data/screenshots";
 
 const SITE_URL = site.url; // https://arigatouapps.com
 
@@ -90,6 +91,7 @@ const webSiteLd = (lang: Lang) => ({
 export const appJsonLd = (app: AndroidAppWithUrl, lang: Lang) => {
   const base = langBase(lang);
   const appPageUrl = `${SITE_URL}${base}apps/${app.id}/`;
+  const shots = (screenshots[app.id] ?? []).map((s) => `${SITE_URL}${s}`);
   return [
     {
       "@context": "https://schema.org",
@@ -100,6 +102,8 @@ export const appJsonLd = (app: AndroidAppWithUrl, lang: Lang) => {
       operatingSystem: "Android",
       url: app.playUrl,
       inLanguage: lang,
+      ...(app.icon ? { image: `${SITE_URL}${app.icon}` } : {}),
+      ...(shots.length ? { screenshot: shots } : {}),
       offers: { "@type": "Offer", price: "0", priceCurrency: "JPY" },
       author: { "@type": "Organization", name: site.name, url: SITE_URL },
     },

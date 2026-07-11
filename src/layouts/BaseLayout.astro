@@ -4,6 +4,7 @@ import { site } from "../data/site";
 import { t, langBase, LANGS, DEFAULT_LANG } from "../i18n";
 import type { Lang } from "../i18n";
 import { useT } from "../i18n/ui";
+import { siteSeoTitle } from "../data/seo";
 
 interface Props {
   lang: Lang;
@@ -11,14 +12,18 @@ interface Props {
   description?: string;
   /** 言語ベース以下のパス（例: "apps/timeaware"）。トップは "" */
   path?: string;
+  /** OGP画像の絶対URL（無ければ og:image を出さない） */
+  image?: string;
   /** schema.org JSON-LD オブジェクトの配列 */
   jsonLd?: unknown[];
 }
-const { lang, title, description, path = "", jsonLd = [] } = Astro.props;
+const { lang, title, description, path = "", image, jsonLd = [] } = Astro.props;
 const T = useT(lang);
 
-const pageTitle = title ? `${title} | ${site.name}` : site.name;
+// title があれば "<title> | ArigatouApps"、無ければサイト既定（キーワード入り）。
+const pageTitle = title ? `${title} | ${site.name}` : t(siteSeoTitle, lang);
 const metaDesc = description ?? t(site.description, lang);
+const ogLocale = lang === "ja" ? "ja_JP" : "en_US";
 
 // 言語別パス
 const base = langBase(lang); // "/" or "/en/"
@@ -65,6 +70,19 @@ const alternates = LANGS.map((l) => ({ lang: l, href: `${site.url}${langBase(l)}
       <link rel="alternate" hreflang={a.lang} href={a.href} />
     ))}
     <link rel="alternate" hreflang="x-default" href={`${site.url}${langBase(DEFAULT_LANG)}${path}`} />
+
+    <!-- Open Graph / Twitter（SNS・AI検索のプレビュー用） -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={site.name} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={metaDesc} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:locale" content={ogLocale} />
+    {image && <meta property="og:image" content={image} />}
+    <meta name="twitter:card" content={image ? "summary_large_image" : "summary"} />
+    <meta name="twitter:title" content={pageTitle} />
+    <meta name="twitter:description" content={metaDesc} />
+    {image && <meta name="twitter:image" content={image} />}
 
     <!-- Google AdSense -->
     <script
