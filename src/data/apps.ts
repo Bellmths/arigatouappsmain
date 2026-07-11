@@ -65,7 +65,7 @@ const raw: Omit<AndroidApp, "playUrl">[] = [
     name: "DotCityClock – Pixel Clock",
     desc: {
       ja: "ドット絵風のピクセルデジタル時計を表示する時計アプリ。",
-      en: "A clock app that shows a pixel-art style digital clock.",
+      en: "A digital clock styled as retro pixel art.",
     },
     status: "live",
     packageId: "com.arigatouapps.dotcityclock",
@@ -216,7 +216,7 @@ const raw: Omit<AndroidApp, "playUrl">[] = [
     name: "AppClock",
     desc: {
       ja: "アプリの使用時間を計測し、使いすぎを通知してくれる。",
-      en: "Tracks how long you use each app and warns you when you overuse them.",
+      en: "Tracks how long you spend in each app and warns you when you're on one too long.",
     },
     status: "live",
     packageId: "com.arigatouapps.app_usage_notifier",
