@@ -9,6 +9,7 @@ import { t, langBase } from "../i18n";
 import type { Lang } from "../i18n";
 import type { AndroidAppWithUrl } from "../data/apps";
 import { screenshots } from "../data/screenshots";
+import { appContent } from "../data/appcontent";
 
 const SITE_URL = site.url; // https://arigatouapps.com
 
@@ -115,6 +116,18 @@ export const appJsonLd = (app: AndroidAppWithUrl, lang: Lang) => {
         { "@type": "ListItem", position: 2, name: app.name, item: appPageUrl },
       ],
     },
+    // アプリ別FAQがあれば FAQPage も出す（GEO/リッチリザルト向け）
+    ...(appContent[app.id]?.faq?.length
+      ? [{
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          mainEntity: appContent[app.id]!.faq!.map((f) => ({
+            "@type": "Question",
+            name: t(f.q, lang),
+            acceptedAnswer: { "@type": "Answer", text: t(f.a, lang) },
+          })),
+        }]
+      : []),
   ];
 };
 
