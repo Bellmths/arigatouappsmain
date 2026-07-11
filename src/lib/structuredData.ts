@@ -89,7 +89,7 @@ const webSiteLd = (lang: Lang) => ({
 /** アプリ個別LP用の JSON-LD（SoftwareApplication + パンくず） */
 export const appJsonLd = (app: AndroidAppWithUrl, lang: Lang) => {
   const base = langBase(lang);
-  const appPageUrl = `${SITE_URL}${base}apps/${app.id}`;
+  const appPageUrl = `${SITE_URL}${base}apps/${app.id}/`;
   return [
     {
       "@context": "https://schema.org",

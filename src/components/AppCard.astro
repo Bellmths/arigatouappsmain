@@ -12,7 +12,7 @@ interface Props {
 const { app, accent = "mint", lang } = Astro.props;
 const T = useT(lang);
 // カードは個別LP（/apps/<id> または /en/apps/<id>）へ遷移する。
-const href = `${langBase(lang)}apps/${app.id}`;
+const href = `${langBase(lang)}apps/${app.id}/`;
 ---
 <a
   class="app"

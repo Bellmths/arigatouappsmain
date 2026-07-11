@@ -7,6 +7,8 @@ export default defineConfig({
   site: "https://arigatouapps.com",
   output: "hybrid",
   adapter: cloudflare(),
+  // Cloudflare は末尾スラッシュURL(/apps/x/)で配信するため、生成リンク・canonical も揃える。
+  trailingSlash: "always",
   // 多言語ルーティング。日本語はルート(/)、英語は /en/ で配信する。
   // prefixDefaultLocale: false → デフォルト言語(ja)にはURLプレフィックスを付けない。
   i18n: {

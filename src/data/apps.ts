@@ -46,7 +46,7 @@ const raw: Omit<AndroidApp, "playUrl">[] = [
     emoji: "🧘",
     featured: true,
     accent: "lime",
-    demo: "/demo/timeaware.html",
+    demo: "/demo/timeaware",
     features: {
       ja: [
         "アプリを絞ったミニマルなホーム画面。ダムフォン（ガラケー）のような割り切り。",
@@ -72,7 +72,7 @@ const raw: Omit<AndroidApp, "playUrl">[] = [
     category: { ja: "時計", en: "Clock" },
     emoji: "🕹️",
     accent: "purple",
-    demo: "/demo/dotcityclock.html",
+    demo: "/demo/dotcityclock",
     features: {
       ja: [
         "5×7ドットで描く、レトロなピクセル時計。",
@@ -248,7 +248,7 @@ const raw: Omit<AndroidApp, "playUrl">[] = [
     category: { ja: "音楽", en: "Music" },
     emoji: "🎵",
     accent: "purple",
-    demo: "/demo/vizfy.html",
+    demo: "/demo/vizfy",
     features: {
       ja: [
         "再生中の音楽をリアルタイムに可視化。",

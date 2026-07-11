@@ -10,7 +10,7 @@ interface Props {
 const { app, lang } = Astro.props;
 const T = useT(lang);
 const features = app.features ? tList(app.features, lang) : [];
-const detailHref = `${langBase(lang)}apps/${app.id}`;
+const detailHref = `${langBase(lang)}apps/${app.id}/`;
 // Google Play 公式バッジは言語別画像が用意されている（ja / en）。
 const badgeLocale = lang === "ja" ? "ja" : "en";
 const badgeSrc = `https://play.google.com/intl/${badgeLocale}/badges/static/images/badges/${badgeLocale}_badge_web_generic.png`;
