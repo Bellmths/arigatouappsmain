@@ -4,6 +4,7 @@ import Badge from "./Badge.astro";
 import AppCard from "./AppCard.astro";
 import { apps, developerUrl } from "../data/apps";
 import type { AndroidAppWithUrl } from "../data/apps";
+import { screenshots } from "../data/screenshots";
 import { t, tList, langBase } from "../i18n";
 import type { Lang } from "../i18n";
 import { useT } from "../i18n/ui";
@@ -16,6 +17,7 @@ const { app, lang } = Astro.props;
 const T = useT(lang);
 const base = langBase(lang);
 
+const shots = screenshots[app.id] ?? [];
 const features = app.features ? tList(app.features, lang) : [];
 const accent = `var(--c-${app.accent ?? "mint"})`;
 const isLive = app.status === "live";
@@ -91,6 +93,24 @@ const accents = ["pink", "mint", "green", "blue", "cyan", "purple", "yellow", "l
     </section>
   )}
 
+  <!-- スクリーンショット -->
+  {shots.length > 0 && (
+    <section class="section ap-shots">
+      <div class="wrap">
+        <div class="section__head">
+          <span class="eyebrow">{T("app.screens")}</span>
+        </div>
+        <div class="ap-shots__scroll">
+          {shots.map((src, i) => (
+            <div class="ap-shot">
+              <img src={src} alt={`${app.name} — screenshot ${i + 1}`} loading="lazy" />
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
   <!-- 関連アプリ -->
   <section class="section ap-related">
     <div class="wrap">
@@ -160,6 +180,17 @@ const accents = ["pink", "mint", "green", "blue", "cyan", "purple", "yellow", "l
   }
   .ap-feat__no { font-size: 1.6rem; line-height: 1; color: var(--soft); flex: none; }
   .ap-feat p { line-height: 1.7; }
+
+  /* スクリーンショット横スクロールギャラリー */
+  .ap-shots__scroll {
+    display: flex; gap: 16px; overflow-x: auto; padding: 6px 2px 18px;
+    scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;
+  }
+  .ap-shot { flex: 0 0 auto; scroll-snap-align: start; }
+  .ap-shot img {
+    height: clamp(360px, 52vw, 440px); width: auto; border: var(--border);
+    border-radius: 20px; background: var(--card); display: block;
+  }
 
   .ap-related__more { text-align: right; margin-top: 22px; }
 
