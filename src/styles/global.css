@@ -125,3 +125,18 @@ img { max-width: 100%; display: block; }
 }
 .btn--solid { background: var(--ink); color: var(--paper); }
 .btn--solid:hover { box-shadow: 4px 4px 0 var(--soft); }
+
+/* 固定ページ（プライバシー/About/お問い合わせ）の本文 */
+.prose { max-width: 720px; margin-top: 22px; }
+.prose h2 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(20px, 3vw, 26px);
+  line-height: 1.2;
+  margin: 30px 0 8px;
+}
+.prose p { margin: 0 0 14px; }
+.prose ul { margin: 0 0 14px; padding-left: 1.3em; }
+.prose li { margin: 0 0 6px; }
+.prose a { text-decoration: underline; text-underline-offset: 2px; }
+.prose a:hover { color: var(--soft); }
