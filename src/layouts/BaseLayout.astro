@@ -5,6 +5,7 @@ import { t, langBase, LANGS, DEFAULT_LANG } from "../i18n";
 import type { Lang } from "../i18n";
 import { useT } from "../i18n/ui";
 import { siteSeoTitle } from "../data/seo";
+import { legalTitles, legalOrder } from "../data/legal";
 
 interface Props {
   lang: Lang;
@@ -134,6 +135,9 @@ const alternates = LANGS.map((l) => ({ lang: l, href: `${site.url}${langBase(l)}
           <p class="eyebrow">{t(site.tagline, lang)}</p>
         </div>
         <div class="foot__links eyebrow">
+          {legalOrder.map((slug) => (
+            <a href={`${base}${slug}/`}>{t(legalTitles[slug], lang)}</a>
+          ))}
           {site.email && <a href={`mailto:${site.email}`}>{site.email}</a>}
         </div>
         <p class="foot__copy eyebrow">© {new Date().getFullYear()} {site.name}</p>
