@@ -78,6 +78,9 @@ export const legal: Record<string, Loc> = {
 <h2>各プロダクトについて</h2>
 <p>それぞれのアプリの詳細（機能・スクリーンショット・よくある質問）は、トップページの一覧から各プロダクトのページでご確認いただけます。当サイトは日本語と英語に対応しています。</p>
 
+<h2>運営者</h2>
+<p>Arigatou Apps</p>
+
 <h2>お問い合わせ</h2>
 <p>ご意見・ご要望は <a href="mailto:hello@arigatouapps.com">hello@arigatouapps.com</a> までお気軽にどうぞ。</p>
 `,
@@ -92,6 +95,9 @@ export const legal: Record<string, Loc> = {
 
 <h2>About each product</h2>
 <p>You can find each app's details — features, screenshots, and frequently asked questions — on its own page, reachable from the list on the home page. This site is available in Japanese and English.</p>
+
+<h2>Operator</h2>
+<p>Arigatou Apps</p>
 
 <h2>Contact</h2>
 <p>We'd love to hear your thoughts at <a href="mailto:hello@arigatouapps.com">hello@arigatouapps.com</a>.</p>
