@@ -140,6 +140,15 @@ img { max-width: 100%; display: block; }
 .prose li { margin: 0 0 6px; }
 .prose a { text-decoration: underline; text-underline-offset: 2px; }
 .prose a:hover { color: var(--soft); }
+.prose blockquote {
+  margin: 20px 0;
+  padding: 16px 20px;
+  background: var(--card);
+  border-left: 4px solid var(--ink);
+  border-radius: 0 12px 12px 0;
+}
+.prose blockquote p { margin: 0; }
+.prose blockquote p + p { margin-top: 10px; }
 
 /* ブログ一覧 */
 .blog-list { display: grid; gap: 16px; margin-top: 8px; }
