@@ -9,8 +9,14 @@ export const ui = {
     "nav.apps": "apps",
     "nav.faq": "faq",
     "nav.about": "about",
+    "nav.blog": "blog",
     "lang.switch": "EN",
     "lang.label": "日本語",
+
+    "blog.eyebrow": "blog",
+    "blog.title": "ブログ",
+    "blog.intro": "スマホとの付き合い方、節約、ホーム画面の整え方など、日常が少し軽くなる実践的な記事。",
+    "blog.back": "ブログ一覧へ",
 
     "hero.eyebrow": "arigatouapps · personal studio",
     "hero.ctaPrimary": "作ったものを見る",
@@ -59,8 +65,14 @@ export const ui = {
     "nav.apps": "apps",
     "nav.faq": "faq",
     "nav.about": "about",
+    "nav.blog": "blog",
     "lang.switch": "日本語",
     "lang.label": "English",
+
+    "blog.eyebrow": "blog",
+    "blog.title": "Blog",
+    "blog.intro": "Practical notes on living well with your phone — screen time, saving money, and calmer home screens.",
+    "blog.back": "Back to all posts",
 
     "hero.eyebrow": "arigatouapps · personal studio",
     "hero.ctaPrimary": "See what I built",

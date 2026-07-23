@@ -131,6 +131,29 @@ export const appJsonLd = (app: AndroidAppWithUrl, lang: Lang) => {
   ];
 };
 
+/** ブログ記事用の JSON-LD（BlogPosting） */
+export const articleJsonLd = (
+  data: { title: string; description: string; key: string; pubDate: Date; updated?: Date },
+  lang: Lang,
+) => {
+  const url = `${SITE_URL}${langBase(lang)}blog/${data.key}/`;
+  return [
+    {
+      "@context": "https://schema.org",
+      "@type": "BlogPosting",
+      headline: data.title,
+      description: data.description,
+      inLanguage: lang,
+      datePublished: data.pubDate.toISOString(),
+      dateModified: (data.updated ?? data.pubDate).toISOString(),
+      author: { "@type": "Organization", name: site.name, url: SITE_URL },
+      publisher: { "@type": "Organization", name: site.name, url: SITE_URL },
+      mainEntityOfPage: url,
+      url,
+    },
+  ];
+};
+
 /** 言語別のトップページ用 JSON-LD 一式 */
 export const homeJsonLd = (lang: Lang) => [
   organizationLd(lang),
