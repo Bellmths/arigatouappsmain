@@ -1,0 +1,40 @@
+---
+// ブログ記事（日本語）: /blog/<slug>/
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { getCollection } from "astro:content";
+import type { CollectionEntry } from "astro:content";
+import { articleJsonLd } from "../../lib/structuredData";
+import { useT } from "../../i18n/ui";
+
+export async function getStaticPaths() {
+  const posts = await getCollection("blog", (e) => e.data.lang === "ja");
+  return posts.map((entry) => ({ params: { slug: entry.data.key }, props: { entry } }));
+}
+
+interface Props {
+  entry: CollectionEntry<"blog">;
+}
+const { entry } = Astro.props;
+const { Content } = await entry.render();
+const lang = "ja";
+const T = useT(lang);
+const fmt = (d: Date) => d.toLocaleDateString("ja-JP", { year: "numeric", month: "long", day: "numeric" });
+---
+
+<BaseLayout
+  lang={lang}
+  title={entry.data.title}
+  description={entry.data.description}
+  path={`blog/${entry.data.key}/`}
+  jsonLd={articleJsonLd(entry.data, lang)}
+>
+  <article class="section">
+    <div class="wrap">
+      <span class="eyebrow">{T("blog.eyebrow")}</span>
+      <h1 class="article__title display">{entry.data.title}</h1>
+      <span class="article__meta eyebrow">{fmt(entry.data.pubDate)}</span>
+      <div class="prose article__body"><Content /></div>
+      <p><a class="btn article__back" href="/blog/">← {T("blog.back")}</a></p>
+    </div>
+  </article>
+</BaseLayout>
