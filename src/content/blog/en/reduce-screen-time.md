@@ -19,6 +19,8 @@ The most effective step is also the most overlooked. Move your social and video 
 
 The key is that you **don't have to uninstall anything.** Just going from one-tap access to a few seconds of friction dramatically cuts unconscious opening. In behavioral terms, you're adding friction — and people abandon an action surprisingly often when it costs even three extra seconds.
 
+> **From my own experience:** of these seven, the one that actually worked best for me was this — taking the apps off the home screen. The reason is simple: **if you never get the chance to see it, the very thought of "opening it" doesn't even come up.** Rather than resisting the urge to launch it, you remove the trigger that starts the urge. That was the easiest to keep up, and the one that lasted.
+
 ## 2. Turn off notifications (keep only messages)
 
 A notification is a mechanism for the app to summon *you.* Trying to cut screen time while leaving them on is like trying to empty a bucket with the tap still running.
@@ -36,6 +38,8 @@ It sounds extreme, but it works. App icons and video thumbnails are designed to 
 To reduce something, you first have to see it. Get the actual numbers on where your time goes.
 
 Most people underestimate their phone use by about half. Being confronted with a concrete figure — "90 minutes a day on YouTube" — is often enough to change behavior on its own. This isn't measuring to punish yourself; it's measuring to know the truth. An app like [AppClock](/en/apps/appclock/), which nudges you when you overuse something, automates this visibility for you.
+
+> **From my own experience:** alongside method 1, this "make it visible" step was the other one I really felt. Once you see your own usage as a number, your hand stops on its own, regardless of willpower. In fact, these two — keep it out of sight (1) and see it as a number (4) — were what worked best for me.
 
 ## 5. Keep your phone out of the bedroom
 
